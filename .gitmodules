@@ -1,0 +1,6 @@
+[submodule "EGT_HAL"]
+	path = EGT_HAL
+	url = https://github.com/sydleither/EGT_HAL
+[submodule "spatial_egt"]
+	path = spatial_egt
+	url = https://github.com/sydleither/spatial_egt

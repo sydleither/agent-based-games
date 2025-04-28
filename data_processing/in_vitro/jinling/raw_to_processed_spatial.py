@@ -13,7 +13,7 @@ import pandas as pd
 from spatial_egt.common import get_data_path
 
 
-def raw_to_processed():
+def main():
     """Get coordinates of each sample in labels.csv"""
     raw_data_path = get_data_path("in_vitro", "raw/jinling")
     payoff_data_path = get_data_path("in_vitro", ".")
@@ -37,4 +37,4 @@ def raw_to_processed():
 
 
 if __name__ == "__main__":
-    raw_to_processed()
+    main()

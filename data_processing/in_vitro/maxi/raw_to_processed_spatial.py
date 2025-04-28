@@ -40,7 +40,7 @@ def get_spatial_data(data_path, source, plate, well, time):
     return df
 
 
-def raw_to_processed():
+def main():
     """Get coordinates of each sample in labels.csv"""
     raw_data_path = get_data_path("in_vitro", "raw/maxi")
     payoff_data_path = get_data_path("in_vitro", ".")
@@ -58,4 +58,4 @@ def raw_to_processed():
 
 
 if __name__ == "__main__":
-    raw_to_processed()
+    main()

@@ -1,4 +1,4 @@
-"""
+"""For each data source, calculate the payoff data
 
 Expected usage:
 python3 -m data_processing.in_vitro.raw_to_processed_payoff

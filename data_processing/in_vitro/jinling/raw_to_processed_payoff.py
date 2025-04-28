@@ -133,15 +133,4 @@ def main(time_to_keep):
     df = df[cols]
     df = df.drop_duplicates()
 
-    # Repeat rows to match multiple images
-    # WARNING: replicates are not actually plates, they are subsamples of a well
-    # The images should actually be stitched together, thisis temporary
-    df = pd.concat(
-        [df.assign(replicate=i) for i in range(1, 5)],
-        ignore_index=True
-    )
-    df["plate"] = df["replicate"]
-    df["sample"] = df["plate"].astype(str) + "_" + df["well"]
-    df = df.drop(["replicate"], axis=1)
-
     return df

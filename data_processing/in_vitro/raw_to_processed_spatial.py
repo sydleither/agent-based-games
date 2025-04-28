@@ -10,7 +10,7 @@ from data_processing.in_vitro.maxi.raw_to_processed_spatial import main as maxi_
 
 def main():
     """Process spatial data from both data sources"""
-    maxi_main()
+    #maxi_main()
     jinling_main()
 
 

@@ -15,13 +15,11 @@ import pandas as pd
 from spatial_egt.common import get_data_path
 
 
-cell_type_map = {0: "sensitive", 1: "resistant"}
-
-
 def main(data_type):
     """Save each raw coordinate file as a processed file"""
     raw_data_path = get_data_path(data_type, "raw")
     processed_data_path = get_data_path(data_type, "processed")
+    cell_type_map = {0: "sensitive", 1: "resistant"}
     for exp_name in os.listdir(raw_data_path):
         exp_path = f"{raw_data_path}/{exp_name}"
         for data_dir in os.listdir(exp_path):

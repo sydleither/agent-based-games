@@ -19,7 +19,6 @@ from spatial_egt.common import calculate_game, get_data_path
 def main(data_type):
     """Extract and compile game data from each EGT_HAL config"""
     raw_data_path = get_data_path(data_type, "raw")
-    processed_data_path = get_data_path(data_type, "processed")
     df_entries = []
     for experiment_name in os.listdir(raw_data_path):
         experiment_path = f"{raw_data_path}/{experiment_name}"
@@ -39,8 +38,9 @@ def main(data_type):
             df_row["d"] = config["D"]
             df_row["game"] = calculate_game(config["A"], config["B"], config["C"], config["D"])
             df_entries.append(df_row)
+    data_path = get_data_path(data_type, ".")
     df = pd.DataFrame(data=df_entries)
-    df.to_csv(f"{processed_data_path}/payoff.csv", index=False)
+    df.to_csv(f"{data_path}/labels.csv", index=False)
 
 
 if __name__ == "__main__":

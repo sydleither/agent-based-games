@@ -40,6 +40,7 @@ def main(data_type):
             df_entries.append(df_row)
     data_path = get_data_path(data_type, ".")
     df = pd.DataFrame(data=df_entries)
+    df = df[df["game"] != "Unknown"]
     df.to_csv(f"{data_path}/labels.csv", index=False)
 
 

@@ -29,7 +29,7 @@ sbatch job_processing.sb data_processing.in_silico.raw_to_processed_spatial in_s
 python3 spatial_egt/create_sbatch_job.py {email} statistics 0-03:59 4gb spatial_egt {path} {node}
 python3 -m spatial_egt.data_processing.write_statistics_bash in_silico "sbatch job_statistics.sb"
 bash statistics_in_silico.sh
-python3 -m spatial_egt.data_processing.statistics_to_features in_silico
+python3 -m spatial_egt.data_processing.statistics_to_features in_silico game
 ```
 
 Running locally:
@@ -42,10 +42,22 @@ python3 -m data_processing.in_silico.raw_to_processed_payoff in_silico
 python3 -m data_processing.in_silico.raw_to_processed_spatial in_silico
 python3 -m spatial_egt.data_processing.write_statistics_bash in_silico "python3 -m"
 bash statistics_in_silico.sh
-python3 -m spatial_egt.data_processing.statistics_to_features in_silico
+python3 -m spatial_egt.data_processing.statistics_to_features in_silico game
 ```
 
-### Experimental data spatial statistics
+### "Spatial patterns are qualitatively different across agent-based games"
+```
+python3 -m data_generation.sample_games data/in_silico_games/raw HAL
+bash data/in_silico_games/raw/HAL/run0.sh
+```
+
+### "Pairs of games are distinguished by different spatial statistics"
+'''
+python3 -m spatial_egt.classification.feature_pairwise_games in_silico game noncorr
+'''
+
+### Experimental data section
+#### Calculate spatial statistics
 Using SLURM:
 ```
 python3 spatial_egt/create_sbatch_job.py {email} processing 0-01:00 1gb spatial_egt {path} {node}
@@ -54,7 +66,7 @@ sbatch job_processing.sb data_processing.in_vitro.raw_to_processed_spatial
 python3 spatial_egt/create_sbatch_job.py {email} statistics 0-03:59 4gb spatial_egt {path} {node}
 python3 -m spatial_egt.data_processing.write_statistics_bash in_vitro "sbatch job_statistics.sb"
 bash statistics_in_vitro.sh
-python3 -m spatial_egt.data_processing.statistics_to_features in_vitro
+python3 -m spatial_egt.data_processing.statistics_to_features in_vitro game
 ```
 
 Running locally:
@@ -63,12 +75,17 @@ python3 -m data_processing.in_vitro.raw_to_processed_payoff
 python3 -m data_processing.in_vitro.raw_to_processed_spatial
 python3 -m spatial_egt.data_processing.write_statistics_bash in_vitro "python3 -m"
 bash statistics_in_vitro.sh
-python3 -m spatial_egt.data_processing.statistics_to_features in_vitro
+python3 -m spatial_egt.data_processing.statistics_to_features in_vitro game
+```
+
+#### Generate game space
+```
+python3 -m spatial_egt.data_analysis.plot_gamespace in_vitro cell_types
 ```
 
 ## Replicate Supplement
 
 ### S2: correlated feature clusters
 ```
-python3 -m spatial_egt.classification.feature_exploration in_silico all
+python3 -m spatial_egt.classification.feature_exploration in_silico game all
 ```

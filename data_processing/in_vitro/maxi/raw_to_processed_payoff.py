@@ -43,7 +43,7 @@ def main(time_to_keep):
 
         # Only keep relevant columns
         cell_types = " ".join(sorted(counts_df["CellType"].unique()))
-        counts_df = counts_df[["WellId", "PlateId", "time_id", "a", "b", "c", "d", "game"]]
+        counts_df = counts_df[["WellId", "PlateId", "SeededProportion_Parental", "time_id", "a", "b", "c", "d", "game"]]
         counts_df = counts_df.drop_duplicates()
         counts_df["data_source"] = "maxi"
         counts_df["source"] = experiment_name
@@ -51,7 +51,7 @@ def main(time_to_keep):
         counts_df["cell_types"] = cell_types
 
         # Rename and reorder columns
-        counts_df = counts_df.rename({"WellId": "well", "PlateId": "plate"}, axis=1)
+        counts_df = counts_df.rename({"WellId": "well", "PlateId": "plate", "SeededProportion_Parental":"initial_fs"}, axis=1)
         cols = [
             "data_source",
             "source",
@@ -60,6 +60,7 @@ def main(time_to_keep):
             "well",
             "time_id",
             "cell_types",
+            "initial_fs",
             "a",
             "b",
             "c",

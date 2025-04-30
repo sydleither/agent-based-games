@@ -31,7 +31,7 @@ def main(data_type):
             df_row["source"] = experiment_name
             df_row["sample"] = data_dir
             df_row["initial_density"] = config["numCells"]
-            df_row["initial_fr"] = config["proportionResistant"]
+            df_row["initial_fs"] = 1-config["proportionResistant"]
             df_row["a"] = config["A"]
             df_row["b"] = config["B"]
             df_row["c"] = config["C"]

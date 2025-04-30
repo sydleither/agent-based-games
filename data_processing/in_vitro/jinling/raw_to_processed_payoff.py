@@ -115,7 +115,7 @@ def main(time_to_keep):
     df["sample"] = df["PlateId"].astype(str) + "_" + df["WellId"]
     df["time_id"] = f"{(time_to_keep // 24):02}d00h00m"
     df["cell_types"] = "C8_R2m-mcherry H358-gfp"
-    df = df.rename({"WellId": "well", "PlateId": "plate"}, axis=1)
+    df = df.rename({"WellId": "well", "PlateId": "plate", "SeededProportion_Parental": "initial_fs"}, axis=1)
     cols = [
         "data_source",
         "source",
@@ -124,6 +124,7 @@ def main(time_to_keep):
         "well",
         "time_id",
         "cell_types",
+        "initial_fs",
         "a",
         "b",
         "c",

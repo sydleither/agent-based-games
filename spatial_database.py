@@ -5,8 +5,6 @@ from spatial_egt.data_processing.spatial_statistics.custom import (
 )
 from spatial_egt.data_processing.spatial_statistics.muspan_statistics import (
     anni,
-    area_dist,
-    circularity_dist,
     cpcf,
     cross_k,
     entropy,
@@ -14,7 +12,6 @@ from spatial_egt.data_processing.spatial_statistics.muspan_statistics import (
     kl_divergence,
     local_moransi_dist,
     nn_dist,
-    patch_count,
     qcm,
     wasserstein,
 )
@@ -40,12 +37,6 @@ STATISTIC_REGISTRY = {
     "Local_Morans_i_Sensitive": local_moransi_dist,
     "NN_Resistant": nn_dist,
     "NN_Sensitive": nn_dist,
-    "Patch_Area_Resistant": area_dist,
-    "Patch_Circularity_Resistant": circularity_dist,
-    "Patch_Count_Resistant": patch_count,
-    "Patch_Area_Sensitive": area_dist,
-    "Patch_Circularity_Sensitive": circularity_dist,
-    "Patch_Count_Sensitive": patch_count,
     "SES": qcm,
     "Wasserstein": wasserstein,
 }
@@ -112,33 +103,19 @@ STATISTIC_PARAMS = {
             "cell_type1": "sensitive",
             "cell_type2": "resistant",
         },
-        "CPCF_RR": {
-            "max_radius": 100,
-            "annulus_step": 10,
-            "annulus_width": 10,
-            "cell_type1": "resistant",
-            "cell_type2": "resistant",
-        },
-        "CPCF_RS": {
+        "CPCF_Resistant": {
             "max_radius": 100,
             "annulus_step": 10,
             "annulus_width": 10,
             "cell_type1": "resistant",
             "cell_type2": "sensitive",
         },
-        "CPCF_SR": {
+        "CPCF_Sensitive": {
             "max_radius": 100,
             "annulus_step": 10,
             "annulus_width": 10,
             "cell_type1": "sensitive",
             "cell_type2": "resistant",
-        },
-        "CPCF_SS": {
-            "max_radius": 100,
-            "annulus_step": 10,
-            "annulus_width": 10,
-            "cell_type1": "sensitive",
-            "cell_type2": "sensitive",
         },
         "Global_Morans_i_Resistant": {"cell_type": "resistant", "side_length": 50},
         "Global_Morans_i_Sensitive": {"cell_type": "sensitive", "side_length": 50},
@@ -147,12 +124,6 @@ STATISTIC_PARAMS = {
         "Local_Morans_i_Sensitive": {"cell_type": "sensitive", "side_length": 50},
         "NN_Resistant": {"cell_type1": "resistant", "cell_type2": "sensitive"},
         "NN_Sensitive": {"cell_type1": "sensitive", "cell_type2": "resistant"},
-        "Patch_Area_Resistant": {"cell_type": "resistant", "alpha": 100},
-        "Patch_Circularity_Resistant": {"cell_type": "resistant", "alpha": 100},
-        "Patch_Count_Resistant": {"cell_type": "resistant", "alpha": 100},
-        "Patch_Area_Sensitive": {"cell_type": "resistant", "alpha": 100},
-        "Patch_Circularity_Sensitive": {"cell_type": "resistant", "alpha": 100},
-        "Patch_Count_Sensitive": {"cell_type": "resistant", "alpha": 100},
         "SES": {"side_length": 100},
     },
 }

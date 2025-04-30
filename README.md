@@ -56,6 +56,16 @@ bash data/in_silico_games/raw/HAL/run0.sh
 python3 -m spatial_egt.classification.feature_pairwise_games in_silico game noncorr
 '''
 
+### "Individually uninformative features can be synergistic"
+```
+python3 -m spatial_egt.classification.feature_entropy in_silico game noncorr
+```
+
+### "Machine learning can infer agent-based game from spatial features"
+```
+python3 -m spatial_egt.classification.feature_sequential in_silico game 0 noncor
+```
+
 ### Experimental data section
 #### Calculate spatial statistics
 Using SLURM:
@@ -85,7 +95,22 @@ python3 -m spatial_egt.data_analysis.plot_gamespace in_vitro cell_types
 
 ## Replicate Supplement
 
-### S2: correlated feature clusters
+### S2: Correlated feature clusters
 ```
 python3 -m spatial_egt.classification.feature_exploration in_silico game all
+```
+
+### S3: Pairwise game distributions
+```
+python3 -m spatial_egt.classification.feature_pairwise_games in_silico game noncorr
+```
+
+### S4: Feature distributions
+```
+python3 -m spatial_egt.classification.feature_exploration in_silico game Proportion_Sensitive
+python3 -m spatial_egt.classification.feature_exploration in_silico game NN_Resistant_Mean NN_Sensitive_Mean
+python3 -m spatial_egt.classification.feature_exploration in_silico game ANNI_Resistant ANNI_Sensitive
+python3 -m spatial_egt.classification.feature_exploration in_silico game NC_Resistant_SD NC_Sensitive_SD
+python3 -m spatial_egt.classification.feature_exploration in_silico game CPCF_Resistant_Min
+python3 -m spatial_egt.classification.feature_exploration in_silico game SES
 ```

@@ -7,7 +7,8 @@ from itertools import product
 
 import pandas as pd
 
-from spatial_egt.common import calculate_game, get_data_path
+from spatial_egt.common import get_data_path
+from data_processing.in_vitro.maxi.raw_to_processed_payoff import format_raw_df
 from data_processing.in_vitro.jinling.game_analysis_utils import (
     estimate_game_parameters,
     estimate_growth_rate,
@@ -92,46 +93,16 @@ def calculate_growth_rates(counts_df, growth_rate_window, cell_type_list):
 
 
 def main(time_to_keep):
-    """Process count data then format for spatial_egt library"""
+    """Process count data"""
     raw_data_path = get_data_path("in_vitro", "raw/jinling")
     counts_df = pd.read_csv(f"{raw_data_path}/count_data.csv")
 
-    # Use Maxi's code to do game assay
     growth_rate_window = [24, 72]
     cell_types = ["Sensitive", "Resistant"]
     growth_rate_df = calculate_growth_rates(counts_df, growth_rate_window, cell_types)
     payoff_df = calculate_payoffs(growth_rate_df, cell_types)
-
-    # Format and filter dataframe to match spatial_egt
     df = payoff_df.merge(counts_df, on="DrugConcentration")
-    df = df.rename({"p11": "a", "p12": "b", "p21": "c", "p22": "d"}, axis=1)
-    df = df[df["Time"] == time_to_keep]
-    df = df[df["DrugConcentration"] == 0]
-
-    # Add columns and further format
-    df["game"] = df.apply(lambda x: calculate_game(x["a"], x["b"], x["c"], x["d"]), axis=1)
-    df["data_source"] = "jinling"
-    df["source"] = "jinling"
-    df["sample"] = df["PlateId"].astype(str) + "_" + df["WellId"]
     df["time_id"] = f"{(time_to_keep // 24):02}d00h00m"
-    df["cell_types"] = "C8_R2m-mcherry H358-gfp"
-    df = df.rename({"WellId": "well", "PlateId": "plate", "SeededProportion_Parental": "initial_fs"}, axis=1)
-    cols = [
-        "data_source",
-        "source",
-        "sample",
-        "plate",
-        "well",
-        "time_id",
-        "cell_types",
-        "initial_fs",
-        "a",
-        "b",
-        "c",
-        "d",
-        "game",
-    ]
-    df = df[cols]
-    df = df.drop_duplicates()
+    df = format_raw_df(df, "jinling", "jinling", time_to_keep)
 
     return df

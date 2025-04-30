@@ -23,13 +23,13 @@ from EGT_HAL.config_utils import latin_hybercube_sample, write_config, write_run
 def main(data_dir, experiment_name, num_samples, seed, run_command):
     """Generate scripts to run the ABM"""
     space = "2D"
-    end_time = 500
+    end_time = 100
 
     samples = latin_hybercube_sample(
         num_samples,
         ["A", "B", "C", "D", "fr"],
-        [0, 0, 0, 0, 0.1],
-        [0.1, 0.1, 0.1, 0.1, 0.9],
+        [0.01, 0.01, 0.01, 0.01, 0.1],
+        [0.04, 0.04, 0.04, 0.04, 0.9],
         [False, False, False, False, False],
         seed=seed,
     )
@@ -52,7 +52,7 @@ def main(data_dir, experiment_name, num_samples, seed, run_command):
             y=500,
             interaction_radius=5,
             reproduction_radius=3,
-            write_freq=100,
+            write_freq=20,
             ticks=end_time,
         )
         run_output.append(f"{run_str} {config_name} {space} {seed}\n")

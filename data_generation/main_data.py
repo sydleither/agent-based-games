@@ -20,7 +20,7 @@ import sys
 from EGT_HAL.config_utils import latin_hybercube_sample, write_config, write_run_scripts
 
 
-def main(data_dir, experiment_name, num_samples, seed, run_command):
+def main(data_dir, experiment_name, num_samples, lhs_seed, run_command):
     """Generate scripts to run the ABM"""
     space = "2D"
     end_time = 100
@@ -31,7 +31,7 @@ def main(data_dir, experiment_name, num_samples, seed, run_command):
         [0.01, 0.01, 0.01, 0.01, 0.1],
         [0.04, 0.04, 0.04, 0.04, 0.9],
         [False, False, False, False, False],
-        seed=seed,
+        seed=lhs_seed,
     )
 
     run_output = []

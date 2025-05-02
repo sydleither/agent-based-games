@@ -29,34 +29,35 @@ def write_matching_configs(row, data_dir, run_command, space, end_time):
     experiment_name = row["source"]
     run_str = f"{run_command} ../{data_dir} {experiment_name}"
     payoff = [row["a"], row["b"], row["c"], row["d"]]
-    for interaction_radius in range(2, 12, 2):
-        for reproduction_radius in range(2, interaction_radius, 2):
-            config_name = f"{row['sample']}-{interaction_radius}_{reproduction_radius}"
-            seed = random.randint(0, 1000)
-            write_config(
-                data_dir,
-                experiment_name,
-                config_name,
-                seed,
-                payoff,
-                int(row["initial_density"]),
-                1 - row["initial_fs"],
-                x=500,
-                y=500,
-                interaction_radius=interaction_radius,
-                reproduction_radius=reproduction_radius,
-                turnover=0.0,
-                write_freq=end_time // 10,
-                ticks=end_time,
-            )
-            run_output.append(f"{run_str} {config_name} {space} {seed}\n")
+    for grid_size in range(200, 1200, 200):
+        for interaction_radius in range(2, 12, 2):
+            for reproduction_radius in range(2, interaction_radius, 2):
+                config_name = f"{row['sample']}-{grid_size}_{interaction_radius}_{reproduction_radius}"
+                seed = random.randint(0, 1000)
+                write_config(
+                    data_dir,
+                    experiment_name,
+                    config_name,
+                    seed,
+                    payoff,
+                    int(row["initial_density"]),
+                    1 - row["initial_fs"],
+                    x=grid_size,
+                    y=grid_size,
+                    interaction_radius=interaction_radius,
+                    reproduction_radius=reproduction_radius,
+                    turnover=0.0,
+                    write_freq=end_time // 10,
+                    ticks=end_time,
+                )
+                run_output.append(f"{run_str} {config_name} {space} {seed}\n")
     return run_output
 
 
 def main(data_dir, run_command):
     """Generate scripts to run the ABM"""
     space = "2D"
-    end_time = 150
+    end_time = 160
 
     df = pd.read_csv(get_data_path("in_vitro", ".") + "/labels.csv")
     run_output = df.apply(

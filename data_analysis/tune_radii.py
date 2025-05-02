@@ -9,6 +9,7 @@ data_type: the name of the directory in data/ containing raw/ ABM data
 import os
 import sys
 
+import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -51,14 +52,12 @@ def read_abm_data(data_type, source=None, sample_id=None):
     raw_data_path = get_data_path(data_type, "raw")
     data_path = get_data_path(data_type, ".")
     df = pd.read_csv(f"{data_path}/labels.csv")
+    df["sample_id"] = df["sample"].str.split("-").str[0]
     if source is not None:
         df = df[(df["source"] == source)]
     if sample_id is not None:
-        df["sample_id"] = df["sample"].str.split("-").str[0]
         df = df[(df["sample_id"] == sample_id)]
     df["radii"] = df["sample"].str.split("-").str[1]
-    # df["Interaction Radius"] = df["file_name"].str.split("-").str[1].str.split("_").str[0].astype(int)
-    # df["Reproduction Radius"] = df["file_name"].str.split("-").str[1].str.split("_").str[1].astype(int)
 
     abm_counts = df.apply(read_coords, axis=1, args=(raw_data_path,))
     abm_counts["sample"] = abm_counts["sample_id"]
@@ -137,13 +136,75 @@ def visualize(data_type, source, sample_id):
 def fit(data_type):
     df_abm = read_abm_data(data_type)
     df_exp = read_exp_data()
-    df = pd.concat([df_exp, df_abm])
+
+    df_exp = df_exp[df_exp["Time"].isin(df_abm["Time"].unique())]
+    df_abm = df_abm[df_abm["Time"].isin(df_exp["Time"].unique())]
+    results = []
+    for source in df_exp["source"].unique():
+        df_source = df_exp[df_exp["source"] == source]
+        for sample in df_source["sample"].unique():
+            df_abm_i = df_abm[(df_abm["source"] == source) & (df_abm["sample"] == sample)]
+            if len(df_abm_i) == 0:
+                continue
+            df_exp_i = df_source[df_source["sample"] == sample]
+            exp_s = df_exp_i[df_exp_i["CellType"] == "Sensitive"]["Count"].values
+            exp_r = df_exp_i[df_exp_i["CellType"] == "Resistant"]["Count"].values
+            for radii in df_abm_i["radii"].unique():
+                df_abm_ir = df_abm_i[df_abm_i["radii"] == radii]
+                abm_s = df_abm_ir[df_abm_ir["CellType"] == "Sensitive"]["Count"].values
+                abm_r = df_abm_ir[df_abm_ir["CellType"] == "Resistant"]["Count"].values
+                mse_s = np.square(np.subtract(exp_s, abm_s)).mean()
+                mse_r = np.square(np.subtract(exp_r, abm_r)).mean()
+                results.append(
+                    {
+                        "source": source,
+                        "sample": sample,
+                        "radii": radii,
+                        "MSE": mse_r,
+                        "CellType": "Resistant",
+                    }
+                )
+                results.append(
+                    {
+                        "source": source,
+                        "sample": sample,
+                        "radii": radii,
+                        "MSE": mse_s,
+                        "CellType": "Sensitive",
+                    }
+                )
+    df = pd.DataFrame(results)
+    df["radii"] = df["radii"].str.replace("_", "\n")
+    save_loc = get_data_path(data_type, "images")
+
+    facet = sns.FacetGrid(df, col="source", row="CellType", height=4, aspect=1)
+    facet.map_dataframe(sns.barplot, x="radii", y="MSE", order=sorted(df["radii"].unique()))
+    facet.set_titles(template="{col_name}")
+    facet.tight_layout()
+    facet.figure.patch.set_alpha(0.0)
+    facet.savefig(f"{save_loc}/tune_radii_source.png", bbox_inches="tight")
+
+    facet = sns.FacetGrid(df, col="radii", row="CellType", height=4, aspect=1)
+    facet.map_dataframe(
+        sns.barplot,
+        x="source",
+        y="MSE",
+        order=sorted(df["source"].unique())
+    )
+    facet.set_titles(template="{col_name}")
+    facet.tight_layout()
+    facet.figure.patch.set_alpha(0.0)
+    facet.savefig(f"{save_loc}/tune_radii_radii.png", bbox_inches="tight")
+
+    fig, ax = plt.subplots()
+    sns.barplot(data=df, x="radii", y="MSE", ax=ax)
+    plt.savefig(f"{save_loc}/tune_radii_overall.png", bbox_inches="tight")
 
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
         fit(*sys.argv[1:])
-    if len(sys.argv) == 4:
+    elif len(sys.argv) == 4:
         visualize(*sys.argv[1:])
     else:
         print("Please see the module docstring for usage instructions.")

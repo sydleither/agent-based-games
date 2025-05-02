@@ -9,9 +9,15 @@ from spatial_egt.common import calculate_game, get_data_path
 
 def format_raw_df(df, data_source, source, time_to_keep):
     """Format count+payoff raw dataframe for spatial_egt"""
+    # Add initial density (number of cells seeded) column
+    df_0 = df[df["Time"] == 0]
+    df_grp = df_0[["PlateId", "WellId", "Count"]].groupby(["PlateId", "WellId"]).sum().reset_index()
+    df_grp = df_grp.rename({"Count": "initial_density"}, axis=1)
+    df = df.merge(df_grp, on=["PlateId", "WellId"])
+
     # Filter to only include desired time and drug concentration
     df = df[df["Time"] == time_to_keep]
-    df = df[df["DrugConcentration"] == 0]
+    #df = df[df["DrugConcentration"] == 0]
 
     # Calculate game
     df = df.rename({"p11": "a", "p12": "b", "p21": "c", "p22": "d"}, axis=1)
@@ -22,11 +28,6 @@ def format_raw_df(df, data_source, source, time_to_keep):
     df["source"] = source
     df["sample"] = df["PlateId"].astype(str) + "_" + df["WellId"]
     df["cell_types"] = " ".join(sorted(df["CellType"].unique()))
-
-    # Add initial density (number of cells seeded) column
-    df_grp = df[["source", "sample", "Count"]].groupby(["source", "sample"]).sum().reset_index()
-    df_grp = df_grp.rename({"Count": "initial_density"}, axis=1)
-    df = df.merge(df_grp, on=["source", "sample"])
 
     # Format and filter columns
     df = df.rename(

@@ -22,6 +22,8 @@ def main(data_type):
     cell_type_map = {0: "sensitive", 1: "resistant"}
     for exp_name in os.listdir(raw_data_path):
         exp_path = f"{raw_data_path}/{exp_name}"
+        if os.path.isfile(exp_path):
+            continue
         for data_dir in os.listdir(exp_path):
             data_path = f"{exp_path}/{data_dir}"
             if os.path.isfile(data_path):

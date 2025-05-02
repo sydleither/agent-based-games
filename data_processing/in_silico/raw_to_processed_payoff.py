@@ -22,6 +22,8 @@ def main(data_type):
     df_entries = []
     for experiment_name in os.listdir(raw_data_path):
         experiment_path = f"{raw_data_path}/{experiment_name}"
+        if os.path.isfile(experiment_path):
+            continue
         for data_dir in os.listdir(experiment_path):
             data_path = f"{experiment_path}/{data_dir}"
             if os.path.isfile(data_path):

@@ -24,6 +24,8 @@ from spatial_egt.common import get_data_path
 
 def write_matching_configs(row, data_dir, run_command, space, end_time):
     """ABM configs that match experimental data conditions"""
+    if row["initial_fs"] in (0, 1):
+        return []
     run_output = []
     experiment_name = row["source"]
     run_str = f"{run_command} ../{data_dir} {experiment_name}"
@@ -49,7 +51,7 @@ def write_matching_configs(row, data_dir, run_command, space, end_time):
                 ticks=end_time,
             )
             run_output.append(f"{run_str} {config_name} {space} {seed}\n")
-    write_run_scripts(data_dir, experiment_name, run_output)
+    return run_output
 
 
 def main(data_dir, run_command):
@@ -58,11 +60,13 @@ def main(data_dir, run_command):
     end_time = 100
 
     df = pd.read_csv(get_data_path("in_vitro", ".") + "/labels.csv")
-    df.apply(
+    run_output = df.apply(
         write_matching_configs,
         axis=1,
         args=(data_dir, run_command, space, end_time),
     )
+    run_output = [x for y in run_output for x in y]
+    write_run_scripts(data_dir, ".", run_output)
 
 
 if __name__ == "__main__":

@@ -15,7 +15,6 @@ run_cmd: how to run the ABM samples
 import random
 import sys
 
-import numpy as np
 import pandas as pd
 
 from EGT_HAL.config_utils import write_config, write_run_scripts
@@ -42,11 +41,11 @@ def write_matching_configs(row, data_dir, run_command, space, end_time):
                 payoff,
                 int(row["initial_density"]),
                 1 - row["initial_fs"],
-                x=1000,
-                y=1000,
+                x=500,
+                y=500,
                 interaction_radius=interaction_radius,
                 reproduction_radius=reproduction_radius,
-                turnover=0.3*np.mean(payoff),
+                turnover=0.0,
                 write_freq=end_time // 10,
                 ticks=end_time,
             )
@@ -57,7 +56,7 @@ def write_matching_configs(row, data_dir, run_command, space, end_time):
 def main(data_dir, run_command):
     """Generate scripts to run the ABM"""
     space = "2D"
-    end_time = 100
+    end_time = 150
 
     df = pd.read_csv(get_data_path("in_vitro", ".") + "/labels.csv")
     run_output = df.apply(

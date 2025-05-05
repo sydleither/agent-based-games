@@ -4,7 +4,7 @@ Writes config files and run scripts to sample the ABM matching experiment data c
 to test the best fitting interaction and reproduction radii.
 
 Expected usage:
-python3 -m data_generation.tune_radii data_dir exp_name run_cmd
+python3 -m data_generation.tune_radii data_dir run_cmd
 
 Where:
 data_dir: the parent directory the data will be located in
@@ -29,10 +29,10 @@ def write_matching_configs(row, data_dir, run_command, space, end_time):
     experiment_name = row["source"]
     run_str = f"{run_command} ../{data_dir} {experiment_name}"
     payoff = [row["a"], row["b"], row["c"], row["d"]]
-    for grid_size in range(200, 1200, 200):
-        for interaction_radius in range(2, 12, 2):
-            for reproduction_radius in range(2, interaction_radius, 2):
-                config_name = f"{row['sample']}-{grid_size}_{interaction_radius}_{reproduction_radius}"
+    for grid_size in range(100, 600, 100):
+        for inter_radius in range(4, 12, 2):
+            for repro_radius in range(2, inter_radius+2, 2):
+                config_name = f"{row['sample']}-{grid_size}_{inter_radius}_{repro_radius}"
                 seed = random.randint(0, 1000)
                 write_config(
                     data_dir,
@@ -44,8 +44,8 @@ def write_matching_configs(row, data_dir, run_command, space, end_time):
                     1 - row["initial_fs"],
                     x=grid_size,
                     y=grid_size,
-                    interaction_radius=interaction_radius,
-                    reproduction_radius=reproduction_radius,
+                    interaction_radius=inter_radius,
+                    reproduction_radius=repro_radius,
                     turnover=0.0,
                     write_freq=end_time // 10,
                     ticks=end_time,
@@ -57,7 +57,7 @@ def write_matching_configs(row, data_dir, run_command, space, end_time):
 def main(data_dir, run_command):
     """Generate scripts to run the ABM"""
     space = "2D"
-    end_time = 160
+    end_time = 120
 
     df = pd.read_csv(get_data_path("in_vitro", ".") + "/labels.csv")
     run_output = df.apply(

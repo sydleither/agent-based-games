@@ -137,8 +137,10 @@ def fit(data_type):
     df_abm = read_abm_data(data_type)
     df_exp = read_exp_data()
 
-    df_exp = df_exp[df_exp["Time"].isin(df_abm["Time"].unique())]
-    df_abm = df_abm[df_abm["Time"].isin(df_exp["Time"].unique())]
+    df_abm = df_abm[df_abm["Time"] <= 80]
+    df_exp = df_exp[df_exp["Time"] <= 80]
+
+    abm_times = df_abm["Time"].unique()
     results = []
     for source in df_exp["source"].unique():
         df_source = df_exp[df_exp["source"] == source]
@@ -147,6 +149,8 @@ def fit(data_type):
             if len(df_abm_i) == 0:
                 continue
             df_exp_i = df_source[df_source["sample"] == sample]
+            df_exp_i = df_exp_i[df_exp_i["Time"].isin(abm_times)]
+            df_abm_i = df_abm_i[df_abm_i["Time"].isin(df_exp_i["Time"].unique())]
             exp_s = df_exp_i[df_exp_i["CellType"] == "Sensitive"]["Count"].values
             exp_r = df_exp_i[df_exp_i["CellType"] == "Resistant"]["Count"].values
             for radii in df_abm_i["radii"].unique():
@@ -177,27 +181,15 @@ def fit(data_type):
     df["radii"] = df["radii"].str.replace("_", "\n")
     save_loc = get_data_path(data_type, "images")
 
-    facet = sns.FacetGrid(df, col="source", row="CellType", height=4, aspect=1)
+    facet = sns.FacetGrid(df, col="source", row="CellType", sharey=False, height=4, aspect=3)
     facet.map_dataframe(sns.barplot, x="radii", y="MSE", order=sorted(df["radii"].unique()))
     facet.set_titles(template="{col_name}")
     facet.tight_layout()
     facet.figure.patch.set_alpha(0.0)
     facet.savefig(f"{save_loc}/tune_radii_source.png", bbox_inches="tight")
 
-    facet = sns.FacetGrid(df, col="radii", row="CellType", height=4, aspect=1)
-    facet.map_dataframe(
-        sns.barplot,
-        x="source",
-        y="MSE",
-        order=sorted(df["source"].unique())
-    )
-    facet.set_titles(template="{col_name}")
-    facet.tight_layout()
-    facet.figure.patch.set_alpha(0.0)
-    facet.savefig(f"{save_loc}/tune_radii_radii.png", bbox_inches="tight")
-
-    fig, ax = plt.subplots()
-    sns.barplot(data=df, x="radii", y="MSE", ax=ax)
+    fig, ax = plt.subplots(figsize=(16, 4))
+    sns.barplot(data=df, x="radii", y="MSE", order=sorted(df["radii"].unique()), ax=ax)
     plt.savefig(f"{save_loc}/tune_radii_overall.png", bbox_inches="tight")
 
 

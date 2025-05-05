@@ -4,13 +4,12 @@ Writes config files and run scripts to sample the ABM
 across diverse payoff matrices and starting conditions.
 
 Expected usage:
-python3 -m data_generation.main_data data_dir exp_name num_samples seed run_cmd
+python3 -m data_generation.main_data data_dir exp_name num_samples run_cmd
 
 Where:
 data_dir: the parent directory the data will be located in
 exp_name: the experiment name, which will be the subdirectory storing the data
 num_samples: how many samples of the ABM to run
-seed: random seed for latin hypercube sampling
 run_cmd: how to run the ABM samples
     e.g. "sbatch job_abm.sb" or "java -cp build/:lib/* SpatialEGT.SpatialEGT"
 """
@@ -20,10 +19,11 @@ import sys
 from EGT_HAL.config_utils import latin_hybercube_sample, write_config, write_run_scripts
 
 
-def main(data_dir, experiment_name, num_samples, lhs_seed, run_command):
+def main(data_dir, experiment_name, num_samples, run_command):
     """Generate scripts to run the ABM"""
     space = "2D"
-    end_time = 100
+    end_time = 72
+    grid_size = 200
 
     samples = latin_hybercube_sample(
         num_samples,
@@ -31,7 +31,7 @@ def main(data_dir, experiment_name, num_samples, lhs_seed, run_command):
         [0.01, 0.01, 0.01, 0.01, 0.1],
         [0.04, 0.04, 0.04, 0.04, 0.9],
         [False, False, False, False, False],
-        seed=lhs_seed,
+        seed=42,
     )
 
     run_output = []
@@ -46,13 +46,13 @@ def main(data_dir, experiment_name, num_samples, lhs_seed, run_command):
             config_name,
             seed,
             payoff,
-            2500,
+            int(0.01 * grid_size),
             sample["fr"],
-            x=500,
-            y=500,
-            interaction_radius=5,
-            reproduction_radius=3,
-            write_freq=20,
+            x=grid_size,
+            y=grid_size,
+            interaction_radius=10,
+            reproduction_radius=10,
+            write_freq=end_time,
             ticks=end_time,
         )
         run_output.append(f"{run_str} {config_name} {space} {seed}\n")
@@ -60,7 +60,7 @@ def main(data_dir, experiment_name, num_samples, lhs_seed, run_command):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 6:
-        main(sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]), sys.argv[5])
+    if len(sys.argv) == 5:
+        main(sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4])
     else:
         print("Please see the module docstring for usage instructions.")

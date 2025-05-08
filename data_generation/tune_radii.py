@@ -30,8 +30,8 @@ def write_matching_configs(row, data_dir, run_command, space, end_time):
     run_str = f"{run_command} ../{data_dir} {experiment_name}"
     payoff = [row["a"], row["b"], row["c"], row["d"]]
     for grid_size in range(100, 600, 100):
-        for inter_radius in range(4, 12, 2):
-            for repro_radius in range(2, inter_radius+2, 2):
+        for inter_radius in range(3, 18, 3):
+            for repro_radius in range(3, inter_radius+3, 3):
                 config_name = f"{row['sample']}-{grid_size}_{inter_radius}_{repro_radius}"
                 seed = random.randint(0, 1000)
                 write_config(

@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from spatial_egt.common import get_data_path
+from spatial_egt.common import get_data_path, theme_colors
 
 
 def read_coords(row, raw_data_path):
@@ -106,7 +106,7 @@ def read_exp_data(source=None, sample_id=None):
         df_exp = df_exp[df_exp["sample"] == sample_id]
     df_exp["TimePoint"] = df_exp.groupby(["source", "sample"]).cumcount()
     df_exp["data_type"] = "in_vitro"
-    df_exp["radii"] = "?"
+    df_exp["radii"] = "unk_unk_unk"
     return df_exp
 
 
@@ -119,7 +119,7 @@ def visualize(data_type, source, sample_id):
     save_loc = get_data_path(data_type, "images")
     hue_order = sorted(df["radii"].unique())
     palette = sns.color_palette("hls", len(hue_order) - 1) + ["black"]
-    sns.relplot(
+    g = sns.relplot(
         data=df,
         x="Time",
         y="Count",
@@ -130,7 +130,34 @@ def visualize(data_type, source, sample_id):
         style="data_type",
         kind="line",
     )
+    g.tight_layout()
+    g.figure.patch.set_alpha(0.0)
     plt.savefig(f"{save_loc}/tune_radii {source} {sample_id}.png")
+
+
+def plot_agg_radii(save_loc, df, name, hue=None):
+    if hue is None:
+        color = theme_colors[0]
+        palette = None
+        num_bars = np.max(len(df[name].unique()), 4)
+    else:
+        color = None
+        palette = "Purples"
+        num_bars = len(df[name].unique()) * len(df[hue].unique())
+    fig, ax = plt.subplots(figsize=(num_bars // 2, 4))
+    sns.barplot(
+        data=df,
+        x=name,
+        y="MSE",
+        hue=hue,
+        palette=palette,
+        color=color,
+        order=sorted(df[name].unique()),
+        ax=ax,
+    )
+    fig.tight_layout()
+    fig.patch.set_alpha(0.0)
+    fig.savefig(f"{save_loc}/tune_radii_{name}_{hue}.png", bbox_inches="tight")
 
 
 def fit(data_type):
@@ -181,16 +208,18 @@ def fit(data_type):
     df["radii"] = df["radii"].str.replace("_", "\n")
     save_loc = get_data_path(data_type, "images")
 
-    facet = sns.FacetGrid(df, col="source", row="CellType", sharey=False, height=4, aspect=3)
-    facet.map_dataframe(sns.barplot, x="radii", y="MSE", order=sorted(df["radii"].unique()))
-    facet.set_titles(template="{col_name}")
-    facet.tight_layout()
-    facet.figure.patch.set_alpha(0.0)
-    facet.savefig(f"{save_loc}/tune_radii_source.png", bbox_inches="tight")
+    df["grid_size"] = df["radii"].str.split("\n").str[0].astype(int)
+    df["interaction_radius"] = df["radii"].str.split("\n").str[1].astype(int)
+    df["repro_radius"] = df["radii"].str.split("\n").str[2].astype(int)
+    plot_agg_radii(save_loc, df, "radii")
+    plot_agg_radii(save_loc, df, "grid_size", "source")
+    plot_agg_radii(save_loc, df, "interaction_radius", "source")
+    plot_agg_radii(save_loc, df, "repro_radius", "source")
+    plot_agg_radii(save_loc, df, "grid_size")
+    plot_agg_radii(save_loc, df, "interaction_radius")
+    plot_agg_radii(save_loc, df, "repro_radius")
 
-    fig, ax = plt.subplots(figsize=(16, 4))
-    sns.barplot(data=df, x="radii", y="MSE", order=sorted(df["radii"].unique()), ax=ax)
-    plt.savefig(f"{save_loc}/tune_radii_overall.png", bbox_inches="tight")
+    #TODO print top ten best overall params
 
 
 if __name__ == "__main__":

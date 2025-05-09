@@ -60,6 +60,7 @@ def main(data_dir, run_command):
     end_time = 120
 
     df = pd.read_csv(get_data_path("in_vitro", ".") + "/labels.csv")
+    df = df.groupby("source").sample(n=10)
     run_output = df.apply(
         write_matching_configs,
         axis=1,

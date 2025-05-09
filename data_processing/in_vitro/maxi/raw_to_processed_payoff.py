@@ -4,6 +4,7 @@ import os
 
 import pandas as pd
 
+from data_processing.in_vitro.game_analysis_utils import calculate_growth_rates, calculate_payoffs
 from spatial_egt.common import calculate_game, get_data_path
 
 
@@ -55,30 +56,26 @@ def format_raw_df(df, data_source, source, time_to_keep):
 
 
 def main(time_to_keep):
-    """Combine counts dfs with overview df"""
+    """Process count data for each experiment"""
     raw_data_path = get_data_path("in_vitro", "raw/maxi")
-    game_df = pd.read_csv(f"{raw_data_path}/overview_df_spatial_data.csv")
+    growth_rate_window = [24, 72]
 
-    key = ["ExperimentName", "PlateId", "WellId", "ReplicateId"]
-    game_df = game_df[key + ["p11", "p12", "p21", "p22"]]
-    game_df["ExperimentName"] = game_df["ExperimentName"].str.lower()
-
-    payoff_df = pd.DataFrame()
+    df = pd.DataFrame()
     for experiment_name in os.listdir(raw_data_path):
         exp_path = f"{raw_data_path}/{experiment_name}"
         if os.path.isfile(exp_path):
             continue
-
-        # Read in counts file and match to game file
         counts_df = pd.read_csv(f"{exp_path}/{experiment_name}_counts_df_processed.csv")
-        counts_df["ExperimentName"] = experiment_name.lower()
-        counts_df = counts_df.merge(game_df, on=key)
+        raw_cell_types = counts_df["CellType"].unique()
+        cell_types = [0, 1]
+        cell_types[0] = [x for x in raw_cell_types if "gfp" in x][0]
+        cell_types[1] = [x for x in raw_cell_types if "mcherry" in x][0]
+        growth_rate_df = calculate_growth_rates(counts_df, growth_rate_window, cell_types)
+        payoff_df = calculate_payoffs(growth_rate_df, cell_types, "SeededProportion_Parental")
+        df_exp = payoff_df.merge(counts_df, on="DrugConcentration")
+        df_exp["time_id"] = df_exp["Time"].rank(method="dense", ascending=True)
+        df_exp["time_id"] = df_exp["time_id"].astype(int)
+        df_exp = format_raw_df(df_exp, "maxi", experiment_name, time_to_keep)
+        df = pd.concat([df, df_exp])
 
-        # Rank times to match imaging data
-        counts_df["time_id"] = counts_df["Time"].rank(method="dense", ascending=True)
-        counts_df["time_id"] = counts_df["time_id"].astype(int)
-
-        counts_df = format_raw_df(counts_df, "maxi", experiment_name, time_to_keep)
-        payoff_df = pd.concat([payoff_df, counts_df])
-
-    return payoff_df
+    return df

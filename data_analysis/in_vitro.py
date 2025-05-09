@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from data_processing.in_vitro.game_analysis_utils import calculate_growth_rates
 from spatial_egt.common import game_colors, get_data_path
 
 cell_colors = [game_colors["Sensitive Wins"], game_colors["Resistant Wins"]]
@@ -147,22 +148,6 @@ def plot_game_gr(df, save_loc):
     plt.close()
 
 
-def plot_game_gr_dc0(df, save_loc, source):
-    df = df.loc[df["DrugConcentration"] == 0]
-    facet = sns.lmplot(
-        data=df,
-        x="Fraction_Sensitive",
-        y="GrowthRate",
-        hue="CellType",
-        legend=False,
-        palette=cell_colors,
-        hue_order=["sensitive", "resistant"],
-    )
-    facet.set_titles(template=source)
-    plt.savefig(f"{save_loc}/gr_by_fs_dc0.png", transparent=True)
-    plt.close()
-
-
 def map_cell_type(df):
     df["CellType"] = df["CellType"].str.lower()
     df["type"] = "sensitive"
@@ -173,33 +158,34 @@ def map_cell_type(df):
 
 def main():
     data_path = get_data_path("in_vitro", ".")
+    growth_rate_window = [24, 72]
     df_labels = pd.read_csv(f"{data_path}/labels.csv")
     for exp_name in df_labels["source"].unique():
         image_data_path = get_data_path("in_vitro", f"images/{exp_name}")
         if exp_name == "jinling":
             raw_data_path = get_data_path("in_vitro", "raw/jinling")
-            df = pd.read_csv(f"{raw_data_path}/count_data.csv")
-            df["type"] = df["CellType"].str.lower()
-            df["CellType"] = df["type"]
-            plot_growth_over_time(df, image_data_path)
-            plot_drug_concentration(df, image_data_path)
-            plot_fs(df, image_data_path)
+            counts_df = pd.read_csv(f"{raw_data_path}/count_data.csv")
+            cell_types = ["Sensitive", "Resistant"]
+            growth_rate_df = calculate_growth_rates(counts_df, growth_rate_window, cell_types)
+            counts_df["type"] = counts_df["CellType"].str.lower()
+            counts_df["CellType"] = counts_df["type"]
+            growth_rate_df["type"] = growth_rate_df["CellType"].str.lower()
+            growth_rate_df["CellType"] = growth_rate_df["type"]
         else:
             raw_data_path = get_data_path("in_vitro", "raw/maxi")
             exp_path = f"{raw_data_path}/{exp_name}"
             if os.path.isfile(exp_path):
                 continue
             growth_name = f"{exp_name}_growth_rate_df.csv"
-            df = pd.read_csv(f"{raw_data_path}/{exp_name}/{growth_name}")
-            df = map_cell_type(df)
-            plot_game_gr(df, image_data_path)
-            plot_game_gr_dc0(df, image_data_path, exp_name)
+            growth_rate_df = pd.read_csv(f"{raw_data_path}/{exp_name}/{growth_name}")
+            growth_rate_df = map_cell_type(growth_rate_df)
             counts_name = f"{exp_name}_counts_df_processed.csv"
-            df = pd.read_csv(f"{raw_data_path}/{exp_name}/{counts_name}")
-            df = map_cell_type(df)
-            plot_growth_over_time(df, image_data_path)
-            plot_drug_concentration(df, image_data_path)
-            plot_fs(df, image_data_path)
+            counts_df = pd.read_csv(f"{raw_data_path}/{exp_name}/{counts_name}")
+            counts_df = map_cell_type(counts_df)
+        plot_growth_over_time(counts_df, image_data_path)
+        plot_drug_concentration(counts_df, image_data_path)
+        plot_fs(counts_df, image_data_path)
+        plot_game_gr(growth_rate_df, image_data_path)
         plot_spatial(df_labels[df_labels["source"] == exp_name], image_data_path, exp_name)
 
 

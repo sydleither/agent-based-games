@@ -1,9 +1,9 @@
-"""Compile Maxi's experimental spatial data into formatted csvs
+"""Compile Dag's experimental spatial data into formatted csvs
 
 The payoff matrix data (labels.csv) should already be saved
 
 Expected usage:
-python3 -m data_processing.in_vitro.maxi.raw_to_processed_spatial
+python3 -m data_processing.in_vitro.pc9.raw_to_processed_spatial
 """
 
 import csv
@@ -42,15 +42,14 @@ def get_spatial_data(data_path, source, plate, well, time):
 
 def main():
     """Get coordinates of each sample in labels.csv"""
-    raw_data_path = get_data_path("in_vitro", "raw/maxi")
-    payoff_data_path = get_data_path("in_vitro", ".")
-    processed_data_path = get_data_path("in_vitro", "processed")
+    data_dir = "in_vitro_pc9"
+    raw_data_path = get_data_path(data_dir, "raw")
+    payoff_data_path = get_data_path(data_dir, ".")
+    processed_data_path = get_data_path(data_dir, "processed")
 
     with open(f"{payoff_data_path}/labels.csv", encoding="UTF-8") as payoff_csv:
         reader = csv.DictReader(payoff_csv)
         for row in reader:
-            if row["data_source"] != "maxi":
-                continue
             source = row["source"]
             sample = row["sample"]
             df = get_spatial_data(raw_data_path, source, row["plate"], row["well"], row["time_id"])

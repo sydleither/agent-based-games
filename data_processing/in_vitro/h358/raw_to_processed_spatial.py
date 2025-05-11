@@ -3,7 +3,7 @@
 The payoff matrix data (labels.csv) should already be saved
 
 Expected usage:
-python3 -m data_processing.in_vitro.jinling.raw_to_processed_spatial
+python3 -m data_processing.in_vitro.h358.raw_to_processed_spatial
 """
 
 import csv
@@ -13,12 +13,12 @@ import pandas as pd
 from spatial_egt.common import get_data_path
 
 
-def stitch_coordinates(raw_data_path, well, time):
+def stitch_coordinates(raw_data_path, source, well, time):
     """Coordinates are split into four quadrants- stitch them back together"""
     df = pd.DataFrame()
     for i in range(1, 5):
         file_name = f"csv_{well}_{i}_{time}.csv"
-        df_i = pd.read_csv(f"{raw_data_path}/coordinates/{file_name}")
+        df_i = pd.read_csv(f"{raw_data_path}/{source}/{file_name}")
         df_i["part"] = i
         df = pd.concat([df_i, df])
     df = df.reset_index()
@@ -33,20 +33,19 @@ def stitch_coordinates(raw_data_path, well, time):
 
 def main():
     """Get coordinates of each sample in labels.csv"""
-    raw_data_path = get_data_path("in_vitro", "raw/jinling")
-    payoff_data_path = get_data_path("in_vitro", ".")
-    processed_data_path = get_data_path("in_vitro", "processed")
+    data_dir = "in_vitro_h358"
+    raw_data_path = get_data_path(data_dir, "raw")
+    payoff_data_path = get_data_path(data_dir, ".")
+    processed_data_path = get_data_path(data_dir, "processed")
 
     with open(f"{payoff_data_path}/labels.csv", encoding="UTF-8") as payoff_csv:
         reader = csv.DictReader(payoff_csv)
         for row in reader:
-            if row["data_source"] != "jinling":
-                continue
             source = row["source"]
             sample = row["sample"]
             well = row["well"]
             time = row["time_id"]
-            df = stitch_coordinates(raw_data_path, well, time)
+            df = stitch_coordinates(raw_data_path, source, well, time)
             df = df[["x", "y", "CellType"]]
             df = df.rename({"CellType": "type"}, axis=1)
             df["type"] = df["type"].map({"gfp":"sensitive", "mcherry":"resistant"})

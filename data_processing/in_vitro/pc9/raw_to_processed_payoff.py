@@ -1,4 +1,4 @@
-"""Compile Maxi's preprocessed experimental data into a csv with payoff matrix data"""
+"""Compile Dag's experimental data into a csv with payoff matrix data"""
 
 import os
 
@@ -8,7 +8,7 @@ from data_processing.in_vitro.game_analysis_utils import calculate_growth_rates,
 from spatial_egt.common import calculate_game, get_data_path
 
 
-def format_raw_df(df, data_source, source, time_to_keep):
+def format_raw_df(df, source, time_to_keep):
     """Format count+payoff raw dataframe for spatial_egt"""
     # Add initial density (number of cells seeded) column
     df_0 = df[df["Time"] == 0]
@@ -16,16 +16,14 @@ def format_raw_df(df, data_source, source, time_to_keep):
     df_grp = df_grp.rename({"Count": "initial_density"}, axis=1)
     df = df.merge(df_grp, on=["PlateId", "WellId"])
 
-    # Filter to only include desired time and drug concentration
+    # Filter to only include desired time
     df = df[df["Time"] == time_to_keep]
-    #df = df[df["DrugConcentration"] == 0]
 
     # Calculate game
     df = df.rename({"p11": "a", "p12": "b", "p21": "c", "p22": "d"}, axis=1)
     df["game"] = df.apply(lambda x: calculate_game(x["a"], x["b"], x["c"], x["d"]), axis=1)
 
     # Add columns for spatial_egt
-    df["data_source"] = data_source
     df["source"] = source
     df["sample"] = df["PlateId"].astype(str) + "_" + df["WellId"]
     df["cell_types"] = " ".join(sorted(df["CellType"].unique()))
@@ -35,7 +33,6 @@ def format_raw_df(df, data_source, source, time_to_keep):
         {"WellId": "well", "PlateId": "plate", "SeededProportion_Parental": "initial_fs"}, axis=1
     )
     cols = [
-        "data_source",
         "source",
         "sample",
         "plate",
@@ -55,10 +52,12 @@ def format_raw_df(df, data_source, source, time_to_keep):
     return df
 
 
-def main(time_to_keep):
+def main():
     """Process count data for each experiment"""
-    raw_data_path = get_data_path("in_vitro", "raw/maxi")
+    data_dir = "in_vitro_pc9"
+    raw_data_path = get_data_path(data_dir, "raw")
     growth_rate_window = [24, 72]
+    time_to_keep = 72
 
     df = pd.DataFrame()
     for experiment_name in os.listdir(raw_data_path):
@@ -66,6 +65,7 @@ def main(time_to_keep):
         if os.path.isfile(exp_path):
             continue
         counts_df = pd.read_csv(f"{exp_path}/{experiment_name}_counts_df_processed.csv")
+        counts_df = counts_df[counts_df["DrugConcentration"] == 0]
         raw_cell_types = counts_df["CellType"].unique()
         cell_types = [0, 1]
         cell_types[0] = [x for x in raw_cell_types if "gfp" in x][0]
@@ -75,7 +75,11 @@ def main(time_to_keep):
         df_exp = payoff_df.merge(counts_df, on="DrugConcentration")
         df_exp["time_id"] = df_exp["Time"].rank(method="dense", ascending=True)
         df_exp["time_id"] = df_exp["time_id"].astype(int)
-        df_exp = format_raw_df(df_exp, "maxi", experiment_name, time_to_keep)
+        df_exp = format_raw_df(df_exp, experiment_name, time_to_keep)
         df = pd.concat([df, df_exp])
+    data_path = get_data_path(data_dir, ".")
+    df.to_csv(f"{data_path}/labels.csv", index=False)
 
-    return df
+
+if __name__ == "__main__":
+    main()

@@ -42,34 +42,36 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
         return []
     run_output = []
     experiment_name = row["source"]
-    run_str = f"{run_command} ../data/{data_dir}/raw {experiment_name}"
+    run_str = f"{run_command} ../{data_dir} {experiment_name}"
     payoff = [row["a"], row["b"], row["c"], row["d"]]
-    for inter_radius in range(5, 50, 5):
-        for repro_radius in range(5, inter_radius+5, 5):
-            config_name = f"{row['sample']}-{inter_radius}_{repro_radius}"
-            seed = random.randint(0, 1000)
-            write_config(
-                data_dir,
-                experiment_name,
-                config_name,
-                seed,
-                payoff,
-                int(row["initial_density"]),
-                1 - row["initial_fs"],
-                x=grid_x,
-                y=grid_y,
-                interaction_radius=inter_radius,
-                reproduction_radius=repro_radius,
-                turnover=0.0,
-                write_freq=end_time // 10,
-                ticks=end_time,
-            )
-            run_output.append(f"{run_str} {config_name} {space} {seed}\n")
+    for grid_reduction in range(0.6, 1.1, 0.1):
+        for inter_radius in range(10, 60, 10):
+            for repro_radius in range(10, inter_radius+10, 10):
+                config_name = f"{row['sample']}-{int(100*grid_reduction)}_{inter_radius}_{repro_radius}"
+                seed = random.randint(0, 1000)
+                write_config(
+                    data_dir,
+                    experiment_name,
+                    config_name,
+                    seed,
+                    payoff,
+                    int(row["initial_density"]),
+                    1 - row["initial_fs"],
+                    x=int(grid_x*grid_reduction),
+                    y=int(grid_y*grid_reduction),
+                    interaction_radius=inter_radius,
+                    reproduction_radius=repro_radius,
+                    turnover=0.0,
+                    write_freq=end_time // 10,
+                    ticks=end_time,
+                )
+                run_output.append(f"{run_str} {config_name} {space} {seed}\n")
     return run_output
 
 
 def main(abm_data_dir, experimental_data_dir, run_command):
     """Generate scripts to run the ABM"""
+    abm_data_dir = f"data/{abm_data_dir}/raw"
     space = "2D"
     end_time = 120
 

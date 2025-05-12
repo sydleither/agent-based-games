@@ -112,7 +112,7 @@ def visualize(data_type, source, sample_id):
     df_abm = read_abm_data(data_type, source, sample_id)
     df_exp = read_exp_data(source, sample_id)
     df = pd.concat([df_exp, df_abm])
-    df = df[df["Time"] <= 72]
+    #df = df[df["Time"] <= 72]
 
     save_loc = get_data_path(data_type, "images")
     hue_order = sorted(df["radii"].unique())
@@ -206,16 +206,19 @@ def fit(data_type):
     df["radii"] = df["radii"].str.replace("_", "\n")
     save_loc = get_data_path(data_type, "images")
 
-    df["interaction_radius"] = df["radii"].str.split("\n").str[0].astype(int)
-    df["repro_radius"] = df["radii"].str.split("\n").str[1].astype(int)
+    df["grid_reduction"] = df["radii"].str.split("\n").str[0].astype(int)
+    df["interaction_radius"] = df["radii"].str.split("\n").str[1].astype(int)
+    df["repro_radius"] = df["radii"].str.split("\n").str[2].astype(int)
     plot_agg_radii(save_loc, df, "radii")
+    plot_agg_radii(save_loc, df, "grid_reduction", "source")
     plot_agg_radii(save_loc, df, "interaction_radius", "source")
     plot_agg_radii(save_loc, df, "repro_radius", "source")
+    plot_agg_radii(save_loc, df, "grid_reduction")
     plot_agg_radii(save_loc, df, "interaction_radius")
     plot_agg_radii(save_loc, df, "repro_radius")
 
-    df = df[["interaction_radius", "repro_radius", "MSE"]]
-    df = df.groupby(["interaction_radius", "repro_radius"]).mean().reset_index()
+    df = df[["interaction_radius", "repro_radius", "grid_reduction", "MSE"]]
+    df = df.groupby(["interaction_radius", "repro_radius", "grid_reduction"]).mean().reset_index()
     print(df.nsmallest(10, "MSE"))
 
 

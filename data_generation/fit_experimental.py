@@ -44,11 +44,14 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
     experiment_name = row["source"]
     run_str = f"{run_command} ../{data_dir} {experiment_name}"
     payoff = [row["a"], row["b"], row["c"], row["d"]]
-    for grid_reduction in range(0.6, 1.1, 0.1):
-        for inter_radius in range(10, 60, 10):
-            for repro_radius in range(10, inter_radius+10, 10):
-                config_name = f"{row['sample']}-{int(100*grid_reduction)}_{inter_radius}_{repro_radius}"
+    for grid_reduction in range(10, 60, 10):
+        for inter_radius in range(2, 12, 2):
+            for repro_radius in range(2, inter_radius+2, 2):
+                config_name = f"{row['sample']}-{grid_reduction}_{inter_radius}_{repro_radius}"
                 seed = random.randint(0, 1000)
+                abm_grid_x = int(grid_x*(grid_reduction/100))
+                abm_grid_y = int(grid_y*(grid_reduction/100))
+                avg_grid_length = (abm_grid_x + abm_grid_y) // 2
                 write_config(
                     data_dir,
                     experiment_name,
@@ -57,10 +60,10 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
                     payoff,
                     int(row["initial_density"]),
                     1 - row["initial_fs"],
-                    x=int(grid_x*grid_reduction),
-                    y=int(grid_y*grid_reduction),
-                    interaction_radius=inter_radius,
-                    reproduction_radius=repro_radius,
+                    x=abm_grid_x,
+                    y=abm_grid_y,
+                    interaction_radius=int(avg_grid_length*(inter_radius/100)),
+                    reproduction_radius=int(avg_grid_length*(repro_radius/100)),
                     turnover=0.0,
                     write_freq=end_time // 10,
                     ticks=end_time,

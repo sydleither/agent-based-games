@@ -24,6 +24,9 @@ from EGT_HAL.config_utils import write_config, write_run_scripts
 from spatial_egt.common import get_data_path
 
 
+random.seed(42)
+
+
 def get_grid_size(data_dir):
     """Get maximum x and y of each spatial sample to find the grid size"""
     max_x = 0
@@ -44,11 +47,11 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
     experiment_name = row["source"]
     run_str = f"{run_command} ../{data_dir} {experiment_name}"
     payoff = [row["a"], row["b"], row["c"], row["d"]]
-    for grid_reduction in range(10, 60, 10):
-        for inter_radius in range(2, 12, 2):
-            for repro_radius in range(2, inter_radius+2, 2):
+    for grid_reduction in range(10, 22, 2):
+        for inter_radius in range(4, 12, 2):
+            for repro_radius in range(4, inter_radius+2, 2):
                 config_name = f"{row['sample']}-{grid_reduction}_{inter_radius}_{repro_radius}"
-                seed = random.randint(0, 1000)
+                seed = random.randint(0, 10000)
                 abm_grid_x = int(grid_x*(grid_reduction/100))
                 abm_grid_y = int(grid_y*(grid_reduction/100))
                 avg_grid_length = (abm_grid_x + abm_grid_y) // 2

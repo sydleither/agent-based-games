@@ -17,13 +17,18 @@ run_cmd: how to run the ABM samples
 import sys
 
 from EGT_HAL.config_utils import latin_hybercube_sample, write_config, write_run_scripts
+from data_generation.fit_experimental import get_grid_size
 
 
 def main(data_dir, experiment_name, num_samples, run_command):
     """Generate scripts to run the ABM"""
     space = "2D"
     end_time = 72
-    grid_size = 200
+    grid_reduction = 20
+    grid_x, grid_y = get_grid_size("in_vitro_pc9")
+    abm_grid_x = int(grid_x*(grid_reduction/100))
+    abm_grid_y = int(grid_y*(grid_reduction/100))
+    avg_grid_length = (abm_grid_x + abm_grid_y) // 2
 
     samples = latin_hybercube_sample(
         num_samples,
@@ -46,12 +51,12 @@ def main(data_dir, experiment_name, num_samples, run_command):
             config_name,
             seed,
             payoff,
-            int(0.01 * grid_size**2),
+            int(0.01 * abm_grid_x * abm_grid_y),
             sample["fr"],
-            x=grid_size,
-            y=grid_size,
-            interaction_radius=10,
-            reproduction_radius=10,
+            x=abm_grid_x,
+            y=abm_grid_y,
+            interaction_radius=int(avg_grid_length*(4/100)),
+            reproduction_radius=int(avg_grid_length*(4/100)),
             write_freq=end_time,
             ticks=end_time,
         )

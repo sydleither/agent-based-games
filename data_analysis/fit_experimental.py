@@ -41,12 +41,15 @@ def read_coords(row, raw_data_path):
         coords["seed"] = seed
         df = pd.concat([df, coords])
     # Get the count of each cell type at each time step
+    types = [0, 1]
     df = df[["seed", "model", "time", "type", "x"]]
-    counts_r = df[df["type"] == 1].groupby(["model", "time", "type"]).count().reset_index()
-    counts_s = df[df["type"] == 0].groupby(["model", "time", "type"]).count().reset_index()
-    row["Sensitive"] = list(counts_s["x"].values)
-    row["Resistant"] = list(counts_r["x"].values)
-    row["Time"] = list(counts_s["time"].values)
+    counts = df.groupby(["model", "time", "type"]).size().reset_index(name="count")
+    times = df["time"].unique()
+    index = pd.MultiIndex.from_product([times, types], names=["time", "type"])
+    counts = counts.set_index(["time", "type"]).reindex(index, fill_value=0).reset_index()
+    row["Sensitive"] = list(counts[counts["type"] == 0]["count"].values)
+    row["Resistant"] = list(counts[counts["type"] == 1]["count"].values)
+    row["Time"] = sorted(list(df["time"].unique()))
     return row
 
 

@@ -8,13 +8,18 @@ from data_processing.in_vitro.game_analysis_utils import calculate_growth_rates,
 from spatial_egt.common import calculate_game, get_data_path
 
 
-def format_raw_df(df, source, time_to_keep):
+def format_raw_df(df, source, sensitive_type, time_to_keep):
     """Format count+payoff raw dataframe for spatial_egt"""
-    # Add initial density (number of cells seeded) column
-    df_0 = df[df["Time"] == 0]
-    df_grp = df_0[["PlateId", "WellId", "Count"]].groupby(["PlateId", "WellId"]).sum().reset_index()
-    df_grp = df_grp.rename({"Count": "initial_density"}, axis=1)
-    df = df.merge(df_grp, on=["PlateId", "WellId"])
+    # Add initial density column (number of initial cells divided by max number of cells seen)
+    df_grp = df[["PlateId", "WellId", "Time", "Count"]].groupby(["PlateId", "WellId", "Time"]).sum()
+    df_grp = df_grp.reset_index()
+    df_grp = df_grp.rename({"Count": "Sum_Count"}, axis=1)
+    df = df.merge(df_grp, on=["PlateId", "WellId", "Time"])
+    df = df[df["CellType"] == sensitive_type].drop_duplicates()
+    df["Density"] = df["Sum_Count"] / df["Sum_Count"].max()
+    df_0 = df[df["Time"] == 0][["PlateId", "WellId", "Density"]]
+    df_0 = df_0.rename({"Density": "initial_density"}, axis=1)
+    df = df.merge(df_0, on=["PlateId", "WellId"], how="left")
 
     # Filter to only include desired time
     df = df[df["Time"] == time_to_keep]
@@ -26,11 +31,11 @@ def format_raw_df(df, source, time_to_keep):
     # Add columns for spatial_egt
     df["source"] = source
     df["sample"] = df["PlateId"].astype(str) + "_" + df["WellId"]
-    df["cell_types"] = " ".join(sorted(df["CellType"].unique()))
+    df["cell_types"] = df["Type1"] + " " + df["Type2"]
 
     # Format and filter columns
     df = df.rename(
-        {"WellId": "well", "PlateId": "plate", "SeededProportion_Parental": "initial_fs"}, axis=1
+        {"WellId": "well", "PlateId": "plate", "Frequency": "initial_fs"}, axis=1
     )
     cols = [
         "source",
@@ -48,7 +53,6 @@ def format_raw_df(df, source, time_to_keep):
         "game",
     ]
     df = df[cols]
-    df = df.drop_duplicates()
     return df
 
 
@@ -75,7 +79,7 @@ def main():
         df_exp = payoff_df.merge(counts_df, on="DrugConcentration")
         df_exp["time_id"] = df_exp["Time"].rank(method="dense", ascending=True)
         df_exp["time_id"] = df_exp["time_id"].astype(int)
-        df_exp = format_raw_df(df_exp, experiment_name, time_to_keep)
+        df_exp = format_raw_df(df_exp, experiment_name, cell_types[0], time_to_keep)
         df = pd.concat([df, df_exp])
     data_path = get_data_path(data_dir, ".")
     df.to_csv(f"{data_path}/labels.csv", index=False)

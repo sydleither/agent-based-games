@@ -32,7 +32,7 @@ def main(data_type):
             config = json.load(open(f"{data_path}/{data_dir}.json", encoding="UTF-8"))
             df_row["source"] = experiment_name
             df_row["sample"] = data_dir
-            df_row["initial_density"] = config["numCells"]
+            df_row["initial_density"] = config["numCells"] / (config["x"]*config["y"])
             df_row["initial_fs"] = 1-config["proportionResistant"]
             df_row["a"] = config["A"]
             df_row["b"] = config["B"]

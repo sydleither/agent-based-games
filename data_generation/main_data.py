@@ -51,7 +51,7 @@ def main(data_dir, experiment_name, num_samples, run_command):
             config_name,
             seed,
             payoff,
-            int(0.01 * abm_grid_x * abm_grid_y),
+            int(0.05 * abm_grid_x * abm_grid_y),
             sample["fr"],
             x=abm_grid_x,
             y=abm_grid_y,

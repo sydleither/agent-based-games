@@ -129,6 +129,4 @@ for spatial_stat in STATISTIC_PARAMS["in_vitro_pc9"]:
             in_silico[spatial_stat][k] = v
         else:
             in_silico[spatial_stat][k] = round(v*(grid_reduction/100))
-    if "CPCF" in spatial_stat:
-        in_silico[spatial_stat]["fix_error"] = True
 STATISTIC_PARAMS["in_silico"] = in_silico

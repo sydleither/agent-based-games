@@ -119,7 +119,7 @@ STATISTIC_PARAMS = {
 }
 STATISTIC_PARAMS["in_vitro_h358"] = STATISTIC_PARAMS["in_vitro_pc9"]
 
-grid_reduction = 20
+grid_reduction = 16
 in_silico = {}
 for spatial_stat in STATISTIC_PARAMS["in_vitro_pc9"]:
     stat_params = STATISTIC_PARAMS["in_vitro_pc9"][spatial_stat]
@@ -128,5 +128,7 @@ for spatial_stat in STATISTIC_PARAMS["in_vitro_pc9"]:
         if isinstance(v, str) or isinstance(v, bool):
             in_silico[spatial_stat][k] = v
         else:
-            in_silico[spatial_stat][k] = int(v*(grid_reduction/100))
+            in_silico[spatial_stat][k] = round(v*(grid_reduction/100))
+    if "CPCF" in spatial_stat:
+        in_silico[spatial_stat]["fix_error"] = True
 STATISTIC_PARAMS["in_silico"] = in_silico

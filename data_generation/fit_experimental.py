@@ -1,7 +1,7 @@
-"""Generate data used for main experiments.
+"""Generate data used for main experiments
 
 Writes config files and run scripts to sample the ABM matching experiment data conditions
-to test the best fitting interaction and reproduction radii.
+to test the best fitting interaction and reproduction radii
 
 Expected usage:
 python3 -m data_generation.fit_experimental abm_data_dir experimental_data_dir run_cmd
@@ -61,12 +61,12 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
                     config_name,
                     seed,
                     payoff,
-                    int(row["initial_density"]*abm_grid_x*abm_grid_y),
+                    round(row["initial_density"]*abm_grid_x*abm_grid_y),
                     1 - row["initial_fs"],
                     x=abm_grid_x,
                     y=abm_grid_y,
-                    interaction_radius=int(avg_grid_length*(inter_radius/100)),
-                    reproduction_radius=int(avg_grid_length*(repro_radius/100)),
+                    interaction_radius=round(avg_grid_length*(inter_radius/100)),
+                    reproduction_radius=round(avg_grid_length*(repro_radius/100)),
                     turnover=0.0,
                     write_freq=end_time // 10,
                     ticks=end_time,
@@ -77,7 +77,7 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
 
 def main(abm_data_dir, experimental_data_dir, run_command):
     """Generate scripts to run the ABM"""
-    abm_data_dir = f"data/{abm_data_dir}/raw"
+    abm_data_dir = get_data_path(abm_data_dir, "raw")
     space = "2D"
     end_time = 120
 

@@ -28,12 +28,12 @@ from spatial_egt.common import get_data_path
 
 def main(experimental_data_dir, abm_data_dir, experiment_name, num_samples, run_command):
     """Generate scripts to run the ABM"""
-    abm_data_dir = f"data/{abm_data_dir}/raw"
+    abm_data_dir = get_data_path(abm_data_dir, "raw")
     space = "2D"
     end_time = 72
     grid_reduction = 16
-    inter_radius = 6
-    repro_radius = 4
+    inter_radius = 10
+    repro_radius = 10
 
     # calculate grid size based on experimental
     grid_x, grid_y = get_grid_size(experimental_data_dir)
@@ -81,6 +81,7 @@ def main(experimental_data_dir, abm_data_dir, experiment_name, num_samples, run_
             y=abm_grid_y,
             interaction_radius=int(avg_grid_length*(inter_radius/100)),
             reproduction_radius=int(avg_grid_length*(repro_radius/100)),
+            turnover=0.0,
             write_freq=end_time,
             ticks=end_time,
         )

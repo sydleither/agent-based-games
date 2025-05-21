@@ -21,7 +21,7 @@ def main():
     payoff_df = calculate_payoffs(growth_rate_df, cell_types, "Fraction_Sensitive")
     df = payoff_df.merge(counts_df, on="DrugConcentration")
     df["time_id"] = f"{(time_to_keep // 24):02}d00h00m"
-    df = format_raw_df(df, "R2", time_to_keep)
+    df = format_raw_df(df, "R2", cell_types[0], time_to_keep)
     data_path = get_data_path(data_dir, ".")
     df.to_csv(f"{data_path}/labels.csv", index=False)
 

@@ -17,6 +17,7 @@ from spatial_egt.common import get_data_path
 
 def main(data_type):
     """Save each raw coordinate file as a processed file"""
+    grid_reduction = 16
     raw_data_path = get_data_path(data_type, "raw")
     processed_data_path = get_data_path(data_type, "processed")
     cell_type_map = {0: "sensitive", 1: "resistant"}
@@ -43,6 +44,10 @@ def main(data_type):
                     df = df[df["time"] == df["time"].max()]
                     df = df[df["model"] == "nodrug"]
                     df["type"] = df["type"].map(cell_type_map)
+                    df["x"] = (100/grid_reduction)*df["x"]
+                    df["y"] = (100/grid_reduction)*df["y"]
+                    df["x"] = df["x"].apply(lambda x: round(x))
+                    df["y"] = df["y"].apply(lambda x: round(x))
                     cols_to_keep = ["type", "x", "y"]
                     df = df[cols_to_keep]
                     df.to_csv(f"{processed_data_path}/{exp_name} {data_dir}.csv", index=False)

@@ -118,15 +118,4 @@ STATISTIC_PARAMS = {
     },
 }
 STATISTIC_PARAMS["in_vitro_h358"] = STATISTIC_PARAMS["in_vitro_pc9"]
-
-grid_reduction = 16
-in_silico = {}
-for spatial_stat in STATISTIC_PARAMS["in_vitro_pc9"]:
-    stat_params = STATISTIC_PARAMS["in_vitro_pc9"][spatial_stat]
-    in_silico[spatial_stat] = {}
-    for k,v in stat_params.items():
-        if isinstance(v, str) or isinstance(v, bool):
-            in_silico[spatial_stat][k] = v
-        else:
-            in_silico[spatial_stat][k] = round(v*(grid_reduction/100))
-STATISTIC_PARAMS["in_silico"] = in_silico
+STATISTIC_PARAMS["in_silico"] = STATISTIC_PARAMS["in_vitro_pc9"]

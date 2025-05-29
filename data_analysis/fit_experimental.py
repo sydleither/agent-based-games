@@ -115,7 +115,7 @@ def visualize(data_type, source, sample_id):
     df_abm = read_abm_data(data_type, source, sample_id)
     df_exp = read_exp_data(source, sample_id)
     df = pd.concat([df_exp, df_abm])
-    #df = df[df["Time"] <= 72]
+    df = df[df["Time"] <= 72]
 
     save_loc = get_data_path(data_type, "images")
     hue_order = sorted(df["radii"].unique())
@@ -140,7 +140,7 @@ def plot_agg_radii(save_loc, df, name, hue=None):
     if hue is None:
         color = theme_colors[0]
         palette = None
-        num_bars = np.max([len(df[name].unique()), 4])
+        num_bars = np.max([len(df[name].unique()), 6])
     else:
         color = None
         palette = "Purples"
@@ -194,6 +194,7 @@ def fit(data_type):
                         "radii": radii,
                         "MSE": mse_r,
                         "CellType": "Resistant",
+                        "InitialCount": exp_r[0]
                     }
                 )
                 results.append(
@@ -203,6 +204,7 @@ def fit(data_type):
                         "radii": radii,
                         "MSE": mse_s,
                         "CellType": "Sensitive",
+                        "InitialCount": exp_s[0]
                     }
                 )
     df = pd.DataFrame(results)
@@ -220,9 +222,14 @@ def fit(data_type):
     plot_agg_radii(save_loc, df, "interaction_radius")
     plot_agg_radii(save_loc, df, "repro_radius")
 
-    df = df[["interaction_radius", "repro_radius", "grid_reduction", "MSE"]]
-    df = df.groupby(["interaction_radius", "repro_radius", "grid_reduction"]).mean().reset_index()
-    print(df.nsmallest(10, "MSE"))
+    df_grp = df[["grid_reduction", "interaction_radius", "repro_radius", "MSE"]].copy()
+    df_grp = df_grp.groupby(["grid_reduction", "interaction_radius", "repro_radius"]).mean().reset_index()
+    df_grp.nsmallest(10, "MSE").to_csv(f"{save_loc}/tune_radii_best.csv")
+
+    df = df[df["CellType"] == "Resistant"]
+    df["InitialCount"] = pd.cut(df["InitialCount"], bins=5)
+    plot_agg_radii(save_loc, df, "grid_reduction", "InitialCount")
+    plot_agg_radii(save_loc, df, "InitialCount", "grid_reduction")
 
 
 if __name__ == "__main__":

@@ -23,9 +23,13 @@ python3 -m data_generation.main_data data/in_silico/raw HAL 2500 42 "sbatch job_
 bash data/in_silico/raw/HAL/run0.sh
 bash data/in_silico/raw/HAL/run1.sh
 bash data/in_silico/raw/HAL/run2.sh
-python3 spatial_egt/create_sbatch_job.py {email} processing 0-01:00 1gb spatial_egt {path} {node}
-sbatch job_processing.sb data_processing.in_silico.payoff_raw_to_processed
-sbatch job_processing.sb data_processing.in_silico.spatial_raw_to_processed
+python3 spatial_egt/create_sbatch_job.py {email} processing 0-01:00 1gb spatial_egt {path}/agent-based-games {node}
+sbatch job_processing.sb data_processing.in_silico.raw_to_processed_payoff in_silico
+sbatch job_processing.sb data_processing.in_silico.raw_to_processed_spatial in_silico
+python3 spatial_egt/create_sbatch_job.py {email} statistics 1-00:00 4gb spatial_egt {path}/agent-based-games {node}
+python3 -m spatial_egt.data_processing.write_statistics_bash in_silico "sbatch job_statistics.sb"
+bash run_in_silico.sh
+python3 -m spatial_egt.data_processing.statistics_to_features in_silico game
 ```
 
 Running locally:
@@ -34,8 +38,11 @@ python3 -m data_generation.main_data data/in_silico/raw HAL 2500 42 "java -cp bu
 bash data/in_silico/raw/HAL/run0.sh
 bash data/in_silico/raw/HAL/run1.sh
 bash data/in_silico/raw/HAL/run2.sh
-python3 -m data_processing.in_silico.payoff_raw_to_processed
-python3 -m data_processing.in_silico.spatial_raw_to_processed
+python3 -m data_processing.in_silico.raw_to_processed_payoff in_silico
+python3 -m data_processing.in_silico.raw_to_processed_spatial in_silico
+python3 -m spatial_egt.data_processing.write_statistics_bash in_silico "python3 -m"
+bash run_in_silico.sh
+python3 -m spatial_egt.data_processing.statistics_to_features in_silico game
 ```
 
 ### "Spatial patterns are qualitatively different across agent-based games"

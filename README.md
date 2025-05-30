@@ -48,7 +48,8 @@ python3 -m spatial_egt.data_processing.statistics_to_features in_silico game
 ### "Spatial patterns are qualitatively different across agent-based games"
 ```
 python3 -m data_generation.sample_games data/in_silico_games/raw HAL
-bash data/in_silico_games/raw/HAL/run0.sh
+cd EGT_HAL
+bash ../data/in_silico_games/raw/HAL/run0.sh
 ```
 
 ### "Pairs of games are distinguished by different spatial statistics"
@@ -63,7 +64,7 @@ python3 -m spatial_egt.classification.feature_entropy in_silico game noncorr
 
 ### "Machine learning can infer agent-based game from spatial features"
 ```
-python3 -m spatial_egt.classification.feature_sequential in_silico game 0 noncor
+python3 -m spatial_egt.classification.model_eval in_silico game ANNI_RS ANNI_SR CPCF_SS_Min Entropy KL_Divergence NC_RS_SD NC_SR_SD Proportion_Sensitive Ripleys_k_RS_Max SES Spatial_Subsample_SD
 ```
 
 ## Replicate Supplement
@@ -80,15 +81,22 @@ python3 -m spatial_egt.classification.feature_pairwise_games in_silico game nonc
 
 ### S4: Feature distributions
 ```
-python3 -m spatial_egt.classification.feature_exploration in_silico game Proportion_Sensitive
-python3 -m spatial_egt.classification.feature_exploration in_silico game NN_Resistant_Mean NN_Sensitive_Mean
-python3 -m spatial_egt.classification.feature_exploration in_silico game ANNI_Resistant ANNI_Sensitive
-python3 -m spatial_egt.classification.feature_exploration in_silico game NC_Resistant_SD NC_Sensitive_SD
-python3 -m spatial_egt.classification.feature_exploration in_silico game CPCF_Resistant_Min
-python3 -m spatial_egt.classification.feature_exploration in_silico game SES
+python3 -m spatial_egt.classification.feature_exploration in_silico game Proportion_Sensitive Entropy SES NC_SR_SD CPCF_RS_Min Local_i_Sensitive_Skew
+python3 -m spatial_egt.classification.feature_exploration in_silico game noncorr
 ```
 
-### Run all analysis
+### S5: Mutual information
+```
+python3 -m spatial_egt.classification.feature_entropy in_silico game noncorr
+```
+
+### S6: Machine learning
+```
+python3 -m spatial_egt.classification.feature_sequential in_silico game {i} noncor
+python3 -m spatial_egt.classification.model_tuning in_silico game ANNI_RS ANNI_SR CPCF_SS_Min Entropy KL_Divergence NC_RS_SD NC_SR_SD Proportion_Sensitive Ripleys_k_RS_Max SES Spatial_Subsample_SD
+```
+
+## Suite of analyzes to overview data
 ```
 python3 -m spatial_egt.classification.feature_exploration in_silico game all
 python3 -m spatial_egt.classification.feature_exploration in_silico game noncorr

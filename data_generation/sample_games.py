@@ -18,7 +18,7 @@ def main(data_dir, experiment_name):
     replicates = 1
     run_command = "java -cp build/:lib/* SpatialEGT.SpatialEGT"
     space = "2D"
-    end_time = 200
+    end_time = 300
 
     high = 0.06
     low = 0.01
@@ -47,7 +47,7 @@ def main(data_dir, experiment_name):
             0.5,
             x=100,
             y=100,
-            write_freq=end_time,
+            write_freq=5,
             ticks=end_time,
         )
     write_run_scripts(data_dir, experiment_name, run_output)

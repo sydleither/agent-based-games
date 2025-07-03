@@ -30,7 +30,6 @@ def main(data_dir, experiment_name):
         config_name = game
         for r in range(replicates):
             seed = str(r)
-            run_output.append(f"{run_str} {config_name} {space} {r} {end_time}\n")
             run_output.append(f"{run_str} {config_name} {space} {r}\n")
         write_config(
             data_dir,
@@ -38,10 +37,10 @@ def main(data_dir, experiment_name):
             config_name,
             seed,
             payoff,
-            5000,
+            125000,
             0.5,
-            x=100,
-            y=100,
+            x=500,
+            y=500,
             gradient=1,
             null=0,
             drug_reduction=0.5,

@@ -15,13 +15,13 @@ from EGT_HAL.config_utils import write_config, write_run_scripts
 
 def main(data_dir, experiment_name):
     """Generate scripts to run the ABM"""
-    replicates = 1
+    replicates = 10
     run_command = "java -cp build/:lib/* SpatialEGT.SpatialEGT"
     space = "2D"
-    end_time = 100
+    end_time = 200
 
     samples = {
-        "test": [0.07, 0.09, 0.05, 0.06]
+        "test": [0.09, 0.09, 0.06, 0.04]
     }
 
     run_output = []
@@ -43,7 +43,7 @@ def main(data_dir, experiment_name):
             y=500,
             gradient=1,
             null=0,
-            drug_reduction=0.5,
+            drug_reduction=0.75,
             write_freq=end_time,
             ticks=end_time,
         )

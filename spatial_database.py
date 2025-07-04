@@ -1,7 +1,6 @@
 from spatial_egt.data_processing.spatial_statistics.custom import (
     nc_dist,
-    proportion_cell,
-    spatial_subsample_dist,
+    proportion_cell
 )
 from spatial_egt.data_processing.spatial_statistics.muspan_statistics import (
     anni,
@@ -21,7 +20,6 @@ STATISTIC_REGISTRY = {
     "NC_RS": nc_dist,
     "NC_SR": nc_dist,
     "Proportion_Sensitive": proportion_cell,
-    "Spatial_Subsample": spatial_subsample_dist,
     # MuSpAn
     "ANNI_RS": anni,
     "ANNI_SR": anni,
@@ -50,7 +48,6 @@ STATISTIC_PARAMS = {
         "NC_RS": {"radius": 10, "return_fs": True},
         "NC_SR": {"radius": 10, "return_fs": False},
         "Proportion_Sensitive": {"cell_type": "sensitive"},
-        "Spatial_Subsample": {"sample_length": 10},
         "ANNI_RS": {"cell_type1": "resistant", "cell_type2": "sensitive"},
         "ANNI_SR": {"cell_type1": "sensitive", "cell_type2": "resistant"},
         "CPCF_RR": {
@@ -118,7 +115,6 @@ STATISTIC_PARAMS = {
         "NC_RS": {"radius": 3, "return_fs": True},
         "NC_SR": {"radius": 3, "return_fs": False},
         "Proportion_Sensitive": {"cell_type": "sensitive"},
-        "Spatial_Subsample": {"sample_length": 5},
         "ANNI_RS": {"cell_type1": "resistant", "cell_type2": "sensitive"},
         "ANNI_SR": {"cell_type1": "sensitive", "cell_type2": "resistant"},
         "CPCF_RR": {
@@ -183,4 +179,5 @@ STATISTIC_PARAMS = {
         "SES": {"side_length": 10},
     },
 }
+STATISTIC_PARAMS["in_silico_drug_split"] = STATISTIC_PARAMS["in_silico"]
 STATISTIC_PARAMS["in_vitro_h358"] = STATISTIC_PARAMS["in_vitro_pc9"]

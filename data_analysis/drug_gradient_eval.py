@@ -30,16 +30,13 @@ def main(model_data_type, data_type, label_name, feature_names):
     y_pred_df = pd.DataFrame(y_pred, columns=["predicted"])
     df = df.join(y_pred_df)
 
-    df["x"] = df["sample"].str.split("_").str[0].astype(int)
-    df["y"] = df["sample"].str.split("_").str[1].astype(int)
-    df_mat = df.pivot(index="y", columns="x", values="predicted")
-
-    colors = ListedColormap([game_colors[v] for v in int_to_class.values()])
-    fig, ax = plt.subplots(figsize=(4, 4))
-    ax.imshow(df_mat, cmap=colors, vmin=0, vmax=len(colors.colors)-1)
-    fig.tight_layout()
-    fig.savefig(f"{save_loc}/drug_gradient_results.png", bbox_inches="tight", transparent=True)
-    plt.close()
+    df["predicted"] = df["predicted"].map(int_to_class)
+    df["x"] = df["sample"].str.split("_").str[1].astype(int)
+    df["correct"] = df["predicted"] == df["game"]
+    df["correct"] = df["correct"].astype(int)
+    df_grp = df[["x", "correct"]].groupby(["x"]).mean().reset_index()
+    df_grp["drug"] = df_grp["x"].map({0:0.15, 1:0.3, 2:0.45, 3:0.6, 4:0.75})
+    print(df_grp[["drug", "correct"]])
 
 
 if __name__ == "__main__":

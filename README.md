@@ -51,6 +51,8 @@ python3 -m data_generation.sample_games data/in_silico_games/raw HAL
 cd EGT_HAL
 bash ../data/in_silico_games/raw/HAL/run0.sh
 python3 -m data_analysis.frequency_over_time in_silico_games HAL
+python3 -m data_processing.in_silico.raw_to_processed_spatial in_silico_games
+python3 -m spatial_egt.data_analysis.plot_spatial in_silico_games HAL Sensitive_Wins Coexistence Bistability Resistant_Wins
 ```
 
 ### "Pairs of games are distinguished by different spatial statistics"

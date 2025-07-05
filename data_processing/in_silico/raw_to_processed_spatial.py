@@ -41,7 +41,6 @@ def main(data_type):
                         continue
                     df = pd.read_csv(model_path)
                     df = df[df["time"] == df["time"].max()]
-                    df = df[df["model"] == "nodrug"]
                     df["type"] = df["type"].map(cell_type_map)
                     cols_to_keep = ["type", "x", "y"]
                     df = df[cols_to_keep]

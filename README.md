@@ -71,8 +71,24 @@ python3 -m spatial_egt.classification.model_eval in_silico game ANNI_RS ANNI_SR 
 ```
 
 ### "IDK"
+HPCC
 ```
-python3 -m data_generation.drug_gradient data/in_silico_drug/raw HAL
+python3 EGT_HAL/create_sbatch_job.py {email} abm 0-00:05 1gb {path}/agent-based-games/EGT_HAL {node}
+python3 -m data_generation.drug_gradient data/in_silico_drug/raw HAL "sbatch job_abm.sb"
+bash data/in_silico_drug/raw/HAL/run0.sh
+sbatch job_processing.sb data_processing.in_silico.drug_gradient in_silico_drug 100
+sbatch job_processing.sb data_processing.in_silico.raw_to_processed_payoff in_silico_drug_split
+sbatch job_processing.sb data_processing.in_silico.raw_to_processed_spatial in_silico_drug_split
+python3 -m spatial_egt.data_processing.write_statistics_bash in_silico_drug_split "sbatch job_statistics.sb"
+bash run_in_silico_drug_split.sh
+python3 -m spatial_egt.data_processing.statistics_to_features in_silico_drug_split game
+python3 -m spatial_egt.classification.model_train in_silico game ANNI_RS ANNI_SR CPCF_RR_Max CPCF_RR_Min CPCF_RS_Min CPCF_SR_Max CPCF_SS_Min KL_Divergence Local_i_Resistant_Mean NC_RS_SD NC_SR_SD Proportion_Sensitive Ripleys_k_RS_Max
+python3 -m data_analysis.drug_gradient_eval in_silico in_silico_drug_split game ANNI_RS ANNI_SR CPCF_RR_Max CPCF_RR_Min CPCF_RS_Min CPCF_SR_Max CPCF_SS_Min KL_Divergence Local_i_Resistant_Mean NC_RS_SD NC_SR_SD Proportion_Sensitive Ripleys_k_RS_Max
+```
+
+Local
+```
+python3 -m data_generation.drug_gradient data/in_silico_drug/raw HAL "java -cp build/:lib/* SpatialEGT.SpatialEGT"
 cd EGT_HAL
 bash ../data/in_silico_drug/raw/HAL/run0.sh
 python3 -m data_processing.in_silico.drug_gradient in_silico_drug 100

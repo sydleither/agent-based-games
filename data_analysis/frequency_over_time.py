@@ -27,8 +27,8 @@ def main(data_type, source):
             if os.path.isfile(f"{raw_data_path}/{source}/{sample}/{rep}"):
                 continue
             coords = pd.read_csv(f"{raw_data_path}/{source}/{sample}/{rep}/2Dcoords.csv")
-            coords = coords[["model", "time", "type", "x"]]
-            counts = coords.groupby(["model", "time", "type"]).count().reset_index()
+            coords = coords[["time", "type", "x"]]
+            counts = coords.groupby(["time", "type"]).count().reset_index()
             counts["sample"] = sample
             df = pd.concat([counts, df])
 

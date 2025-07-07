@@ -35,8 +35,7 @@ def main(model_data_type, data_type, label_name, feature_names):
     df["correct"] = df["predicted"] == df["game"]
     df["correct"] = df["correct"].astype(int)
     df_grp = df[["x", "correct"]].groupby(["x"]).mean().reset_index()
-    df_grp["drug"] = df_grp["x"].map({0:0.15, 1:0.3, 2:0.45, 3:0.6, 4:0.75})
-    print(df_grp[["drug", "correct"]])
+    print(df_grp[["correct"]])
 
 
 if __name__ == "__main__":

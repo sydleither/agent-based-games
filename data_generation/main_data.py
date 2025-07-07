@@ -53,6 +53,7 @@ def main(data_dir, experiment_name, num_samples, seed, run_command):
             y=100,
             interaction_radius=2,
             reproduction_radius=1,
+            turnover=0.009,
             write_freq=end_time,
             ticks=end_time,
         )

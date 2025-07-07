@@ -22,10 +22,14 @@ def save_splits(data_path, data_dir, rep, config, df, grid_size):
     config["y"] = grid_size
     for split in df["split"].unique():
         df_split = df[df["split"] == split]
-        drug_concentration = df_split["drug"].values[0]
+        gradient = split[0]
+        if gradient == "0":
+            gradient = ""
         split_config = config.copy()
-        split_config["A"] = split_config["A"]*(1-drug_concentration)
-        split_config["B"] = split_config["B"]*(1-drug_concentration)
+        split_config["A"] = split_config[f"A{gradient}"]
+        split_config["B"] = split_config[f"B{gradient}"]
+        split_config["C"] = split_config[f"C{gradient}"]
+        split_config["D"] = split_config[f"D{gradient}"]
         os.makedirs(f"{data_path}/{data_dir}/{rep}_{split}/{rep}")
         with open(f"{data_path}/{data_dir}/{rep}_{split}/{rep}_{split}.json", "w") as f:
             json.dump(split_config, f)

@@ -36,7 +36,7 @@ def main(data_dir, experiment_name, run_command):
     """Generate scripts to run the ABM"""
     replicates = 20
     space = "2D"
-    end_time = 200
+    end_time = 500
 
     samples = {
         0.0: [0.042, 0.046486, 0.034767, 0.0312],
@@ -65,7 +65,7 @@ def main(data_dir, experiment_name, run_command):
             y=500,
             interaction_radius=2,
             reproduction_radius=1,
-            turnover=0.004,
+            turnover=0.0036,
             write_freq=end_time,
             ticks=end_time,
         )

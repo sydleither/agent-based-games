@@ -36,18 +36,16 @@ def main(data_dir, experiment_name, run_command):
     """Generate scripts to run the ABM"""
     replicates = 10
     space = "2D"
-    end_time = 200
+    end_time = 500
 
     samples = {
-        "0.0": [0.99, 1, 0.97, 0.75],
-        "0.125": [0.67, 0.69, 0.75, 0.79],
-        "0.25": [0.47, 0.42, 0.83, 0.70],
-        "0.5": [0.37, -0.02, 0.86, 0.71],
-        "1": [0.37, -0.4, 0.93, 0.72],
-        #"2": [0.34, -0.5, 0.98, 0.74],
-        #"4": [0.33, -0.6, 1.12, 0.79]
+        0.0: [0.030000, 0.033204, 0.024834, 0.022286],
+        0.0009: [0.027019, 0.027636, 0.024955, 0.022286],
+        0.0019: [0.024721, 0.023275, 0.025075, 0.022286],
+        0.0037: [0.021411, 0.016835, 0.025309, 0.022286],
+        0.0075: [0.017489, 0.008787, 0.025757, 0.022286]
     }
-    payoffs = [[round(x/10, 3) for x in payoff] for payoff in samples.values()]
+    payoffs = list(samples.values())
 
     run_output = []
     run_str = f"{run_command} ../{data_dir} {experiment_name}"
@@ -65,7 +63,7 @@ def main(data_dir, experiment_name, run_command):
             0.5,
             x=500,
             y=500,
-            write_freq=end_time,
+            write_freq=100,
             ticks=end_time,
         )
     write_run_scripts(data_dir, experiment_name, run_output)

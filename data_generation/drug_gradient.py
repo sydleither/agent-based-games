@@ -34,16 +34,16 @@ def plot_gamespace_gradient(data_dir, samples):
 
 def main(data_dir, experiment_name, run_command):
     """Generate scripts to run the ABM"""
-    replicates = 10
+    replicates = 20
     space = "2D"
-    end_time = 500
+    end_time = 200
 
     samples = {
-        0.0: [0.030000, 0.033204, 0.024834, 0.022286],
-        0.0009: [0.027019, 0.027636, 0.024955, 0.022286],
-        0.0019: [0.024721, 0.023275, 0.025075, 0.022286],
-        0.0037: [0.021411, 0.016835, 0.025309, 0.022286],
-        0.0075: [0.017489, 0.008787, 0.025757, 0.022286]
+        0.0: [0.042, 0.046486, 0.034767, 0.0312],
+        0.001312: [0.037826, 0.038691, 0.034937, 0.0312],
+        0.002625: [0.03461, 0.032585, 0.035105, 0.0312],
+        0.00525: [0.029976, 0.023569, 0.035433, 0.0312],
+        0.0105: [0.024485, 0.012302, 0.03606, 0.0312]
     }
     payoffs = list(samples.values())
 
@@ -65,8 +65,8 @@ def main(data_dir, experiment_name, run_command):
             y=500,
             interaction_radius=2,
             reproduction_radius=1,
-            turnover=0.003,
-            write_freq=100,
+            turnover=0.004,
+            write_freq=end_time,
             ticks=end_time,
         )
     write_run_scripts(data_dir, experiment_name, run_output)

@@ -1,11 +1,12 @@
 """Split ABM grid into multiple samples
 
 Expected usage:
-python3 -m data_processing.in_silico.drug_gradient data_type grid_size
+python3 -m data_processing.in_silico.drug_gradient data_type grid_size time
 
 Where:
 data_type: the name of the directory in data/ containing the raw/ data
 grid_size: the resulting size the split grids should be
+time: timepoint
 """
 
 import json
@@ -50,7 +51,7 @@ def assign_splits(row, num_splits, grid_size):
     raise ValueError("Coordinates unable to be properly split.")
 
 
-def main(data_type, grid_size):
+def main(data_type, grid_size, time):
     """Extract and compile game data from each EGT_HAL config"""
     curr_data_path = get_data_path(data_type, "raw")
     new_data_path = get_data_path(data_type+"_split", "raw")
@@ -76,13 +77,13 @@ def main(data_type, grid_size):
                         print(f"Data not found in {model_path}")
                         continue
                     df = pd.read_csv(model_path)
-                    df = df[df["time"] == df["time"].max()]
+                    df = df[df["time"] == time]
                     df = df.apply(assign_splits, args=(num_splits, grid_size), axis=1)
                     save_splits(new_data_path, data_dir, rep_dir, config, df, grid_size)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3:
-        main(sys.argv[1], int(sys.argv[2]))
+    if len(sys.argv) == 4:
+        main(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
     else:
         print("Please see the module docstring for usage instructions.")

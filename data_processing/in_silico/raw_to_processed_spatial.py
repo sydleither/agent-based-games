@@ -1,10 +1,11 @@
 """Compile EGT_HAL final timestep coordinates into processed csvs
 
 Expected usage:
-python3 -m data_processing.in_silico.raw_to_processed_spatial data_type
+python3 -m data_processing.in_silico.raw_to_processed_spatial data_type time
 
 Where:
 data_type: the name of the directory in data/ containing the raw/ data
+time: the timepoint to process
 """
 
 import sys
@@ -15,10 +16,10 @@ import pandas as pd
 from spatial_egt.common import get_data_path
 
 
-def main(data_type):
+def main(data_type, time):
     """Save each raw coordinate file as a processed file"""
     raw_data_path = get_data_path(data_type, "raw")
-    processed_data_path = get_data_path(data_type, "processed")
+    processed_data_path = get_data_path(data_type, "processed", time)
     cell_type_map = {0: "sensitive", 1: "resistant"}
     for exp_name in os.listdir(raw_data_path):
         exp_path = f"{raw_data_path}/{exp_name}"
@@ -40,7 +41,7 @@ def main(data_type):
                         print(f"Data not found in {model_path}")
                         continue
                     df = pd.read_csv(model_path)
-                    df = df[df["time"] == df["time"].max()]
+                    df = df[df["time"] == time]
                     df["type"] = df["type"].map(cell_type_map)
                     cols_to_keep = ["type", "x", "y"]
                     df = df[cols_to_keep]
@@ -48,7 +49,7 @@ def main(data_type):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        main(sys.argv[1])
+    if len(sys.argv) == 3:
+        main(sys.argv[1], int(sys.argv[2]))
     else:
         print("Please see the module docstring for usage instructions.")

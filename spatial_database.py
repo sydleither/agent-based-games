@@ -179,5 +179,6 @@ STATISTIC_PARAMS = {
         "SES": {"side_length": 10},
     },
 }
-STATISTIC_PARAMS["in_silico_drug_split"] = STATISTIC_PARAMS["in_silico"]
+STATISTIC_PARAMS["in_silico2"] = STATISTIC_PARAMS["in_silico"]
+STATISTIC_PARAMS["in_silico3"] = STATISTIC_PARAMS["in_silico"]
 STATISTIC_PARAMS["in_vitro_h358"] = STATISTIC_PARAMS["in_vitro_pc9"]

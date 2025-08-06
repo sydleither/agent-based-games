@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.stats import wasserstein_distance
+from scipy.stats import wilcoxon
 import seaborn as sns
 from sklearn.preprocessing import scale
 
@@ -149,7 +150,9 @@ def get_entropy(df, feature_names, label_name="game"):
         entropies[feature_name] = ddit.recursively_solve_formula(f"{label_name}:{feature_name}")
 
     # calculate joint mutual information
-    top_features = [k for k in sorted(entropies.items(), key=lambda item: item[1])][0:3]
+    top_features = [
+        k for k, _ in sorted(entropies.items(), key=lambda item: item[1], reverse=True)
+    ][0:3]
     label_entropy = ddit.entropy(label_name)
     ent = ddit.recursively_solve_formula(label_name + ":" + "&".join(top_features))
     ent = ent / label_entropy
@@ -158,15 +161,50 @@ def get_entropy(df, feature_names, label_name="game"):
 
 
 def entropy_plot(save_loc, df, feature_names):
-    data = {}
+    data = []
     for model in df["Model"].unique():
         for time in df["Time"].unique():
             df_i = df[(df["Model"] == model) & (df["Time"] == time)]
             top = get_entropy(df_i, feature_names)
-            top = top | {"Model":model, "Time":time}
-            data = data | top
+            top = top | {"Model": model, "Time": time}
+            data.append(top)
     df = pd.DataFrame(data)
     print(df)
+
+
+def significance(df, feature_names):
+    data = []
+    for model1 in df["Model"].unique():
+        for model2 in df["Model"].unique():
+            if model1 == model2:
+                continue
+            for time in df["Time"].unique():
+                for game in df["game"].unique():
+                    df1 = df[(df["Model"] == model1) & (df["Time"] == time) & (df["game"] == game)]
+                    df2 = df[(df["Model"] == model2) & (df["Time"] == time) & (df["game"] == game)]
+                    for feature in feature_names:
+                        _, p = wilcoxon(df1[feature], df2[feature])
+                        data.append(
+                            {
+                                "Model1": model1,
+                                "Model2": model2,
+                                "Time": time,
+                                "Game": game,
+                                "Feature": feature,
+                                "p": p,
+                            }
+                        )
+
+    df_p = pd.DataFrame(data)
+    df_p["Significant"] = df_p["p"] < 0.05
+    df_p = df_p.drop(["Feature", "p"], axis=1)
+    df_p["Total"] = 1
+    df_p = df_p.groupby(["Model1", "Model2", "Time", "Game"]).sum().reset_index()
+    df_p["Percent"] = df_p["Significant"] / df_p["Total"]
+
+    print(df_p[["Game", "Percent"]].groupby(["Game"]).mean())
+    print(df_p[["Time", "Percent"]].groupby(["Time"]).mean())
+    print(df_p[["Model1", "Model2", "Percent"]].groupby(["Model1", "Model2"]).mean())
 
 
 def main():
@@ -195,7 +233,8 @@ def main():
     #     df_game = df_pw[df_pw["Game"] == game]
     #     plot_bars(save_loc, "Earth Movers Distance", game, df_game)
     # plot_violins(save_loc, "Earth Movers Distance", df_pw)
-    entropy_plot(save_loc, df_ent, feature_names_i)
+    significance(df_ent, feature_names_i)
+    #entropy_plot(save_loc, df_ent, feature_names_i)
 
 
 if __name__ == "__main__":

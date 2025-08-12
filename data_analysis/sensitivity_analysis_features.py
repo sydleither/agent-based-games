@@ -14,6 +14,19 @@ from spatial_egt.common import theme_colors
 warnings.filterwarnings("ignore")
 
 
+def plot_overlaps2(save_loc, df):
+    fig, ax = plt.subplots(1, 3, figsize=(12, 4))
+    sns.violinplot(df, x="Spatial Scale Pair", y="Overlap", cut=0, color=theme_colors[0], ax=ax[0])
+    sns.violinplot(df, x="Time", y="Overlap", cut=0, color=theme_colors[0], ax=ax[1])
+    sns.violinplot(df, x="Game", y="Overlap", cut=0, color=theme_colors[0], ax=ax[2])
+    for i in range(3):
+        ax[i].set_xticklabels(ax[i].get_xticklabels(), rotation=45)
+    fig.suptitle("Feature Distribution Overlap Across Parameters")
+    fig.tight_layout()
+    fig.patch.set_alpha(0)
+    fig.savefig(f"{save_loc}/sa_all.png", dpi=200)
+
+
 def plot_overlaps(save_loc, df, focal, subs):
     fig, ax = plt.subplots(1, 3, figsize=(12, 4))
     sns.violinplot(df, x=focal, y="Overlap", cut=0, color=theme_colors[0], ax=ax[0])
@@ -65,7 +78,7 @@ def overlap(df, feature_names):
                         )
 
     df_p = pd.DataFrame(data)
-    df_p["Model Pair"] = df_p["Model1"] + "\n" + df_p["Model2"]
+    df_p["Spatial Scale Pair"] = df_p["Model1"] + "\n" + df_p["Model2"]
     print(df_p[["Game", "Overlap"]].groupby(["Game"]).mean())
     print(df_p[["Time", "Overlap"]].groupby(["Time"]).mean())
     print(df_p[["Model1", "Model2", "Overlap"]].groupby(["Model1", "Model2"]).mean())
@@ -91,9 +104,10 @@ def main():
     save_loc = "data"
     df_p = overlap(df, feature_names_i)
     df_p["Time"] = df_p["Time"].astype(str)
-    plot_overlaps(save_loc, df_p, "Game", ["Time", "Model Pair"])
-    plot_overlaps(save_loc, df_p, "Time", ["Game", "Model Pair"])
-    plot_overlaps(save_loc, df_p, "Model Pair", ["Time", "Game"])
+    plot_overlaps(save_loc, df_p, "Game", ["Time", "Spatial Scale Pair"])
+    plot_overlaps(save_loc, df_p, "Time", ["Game", "Spatial Scale Pair"])
+    plot_overlaps(save_loc, df_p, "Spatial Scale Pair", ["Time", "Game"])
+    plot_overlaps2(save_loc, df_p)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,15 @@ from spatial_egt.classification.DDIT.ddit import DDIT
 from spatial_egt.common import game_colors
 
 
+def lineplot(save_loc, df):
+    fig, ax = plt.subplots(figsize=(4, 4))
+    sns.lineplot(df, x="Time", y="Mutual Information", hue="Spatial Scale", palette="husl", ax=ax)
+    fig.suptitle("Joint Mutual Information\nAcross Time and Spatial Scales")
+    fig.tight_layout()
+    fig.patch.set_alpha(0)
+    fig.savefig(f"{save_loc}/sa_entropy.png", dpi=200)
+
+
 def get_entropy(df, feature_names, label_name="game"):
     # initializations
     ddit = DDIT()
@@ -43,12 +52,16 @@ def main():
             for feature_name in feature_names_i:
                 feature_df[feature_name] = zscore(feature_df[feature_name])
             top = get_entropy(feature_df, feature_names_i, "game")
-            top = top | {"Model": data_type, "Time": time}
+            top = top | {"Spatial Scale": data_type, "Time": time}
             data.append(top)
 
     save_loc = "data"
     df = pd.DataFrame(data)
+    df["Spatial Scale"] = df["Spatial Scale"].map(
+        {"in_silico": "High", "in_silico2": "Medium", "in_silico3": "Low"}
+    )
     print(df)
+    lineplot(save_loc, df)
 
 
 if __name__ == "__main__":

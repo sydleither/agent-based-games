@@ -5,9 +5,27 @@ from scipy.stats import gaussian_kde
 from scipy.integrate import trapezoid
 from scipy.stats import zscore
 import seaborn as sns
+import warnings
 
 from spatial_egt.classification.common import get_feature_data
-from spatial_egt.common import game_colors
+from spatial_egt.common import theme_colors
+
+
+warnings.filterwarnings("ignore")
+
+
+def plot_overlaps(save_loc, df, focal, subs):
+    fig, ax = plt.subplots(1, 3, figsize=(12, 4))
+    sns.violinplot(df, x=focal, y="Overlap", cut=0, color=theme_colors[0], ax=ax[0])
+    sns.violinplot(df, x=focal, y="Overlap", cut=0, hue=subs[0], palette="husl", ax=ax[1])
+    sns.violinplot(df, x=focal, y="Overlap", cut=0, hue=subs[1], palette="husl", ax=ax[2])
+    if focal == "Game":
+        for i in range(3):
+            ax[i].set_xticklabels(ax[i].get_xticklabels(), rotation=45)
+    fig.suptitle(f"{focal} Feature Distribution Overlap")
+    fig.tight_layout()
+    fig.patch.set_alpha(0)
+    fig.savefig(f"{save_loc}/sa_{focal}.png", dpi=200)
 
 
 def get_xdata(dist1, dist2):
@@ -16,7 +34,7 @@ def get_xdata(dist1, dist2):
     return np.linspace(minimum, maximum, 50)
 
 
-def significance(df, feature_names):
+def overlap(df, feature_names):
     models = df["Model"].unique()
     data = []
     for i in range(len(models)):
@@ -47,10 +65,11 @@ def significance(df, feature_names):
                         )
 
     df_p = pd.DataFrame(data)
-    df_p = df_p.drop(["Feature"], axis=1)
+    df_p["Model Pair"] = df_p["Model1"] + "\n" + df_p["Model2"]
     print(df_p[["Game", "Overlap"]].groupby(["Game"]).mean())
     print(df_p[["Time", "Overlap"]].groupby(["Time"]).mean())
     print(df_p[["Model1", "Model2", "Overlap"]].groupby(["Model1", "Model2"]).mean())
+    return df_p
 
 
 def main():
@@ -65,9 +84,16 @@ def main():
             feature_df["Model"] = data_type
             feature_df["Time"] = time
             df = pd.concat([df, feature_df])
+    df["Model"] = df["Model"].map(
+        {"in_silico": "High", "in_silico2": "Medium", "in_silico3": "Low"}
+    )
 
     save_loc = "data"
-    significance(df, feature_names_i)
+    df_p = overlap(df, feature_names_i)
+    df_p["Time"] = df_p["Time"].astype(str)
+    plot_overlaps(save_loc, df_p, "Game", ["Time", "Model Pair"])
+    plot_overlaps(save_loc, df_p, "Time", ["Game", "Model Pair"])
+    plot_overlaps(save_loc, df_p, "Model Pair", ["Time", "Game"])
 
 
 if __name__ == "__main__":

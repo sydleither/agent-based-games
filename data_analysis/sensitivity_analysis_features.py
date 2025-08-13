@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import gaussian_kde
 from scipy.integrate import trapezoid
-from scipy.stats import zscore
 import seaborn as sns
 import warnings
 
@@ -79,6 +78,9 @@ def overlap(df, feature_names):
 
     df_p = pd.DataFrame(data)
     df_p["Spatial Scale Pair"] = df_p["Model1"] + "\n" + df_p["Model2"]
+
+    feature_overlaps = df_p[["Feature", "Overlap"]].groupby(["Feature"]).mean()
+    print(feature_overlaps.reset_index().sort_values(by=["Overlap"]))
     print(df_p[["Game", "Overlap"]].groupby(["Game"]).mean())
     print(df_p[["Time", "Overlap"]].groupby(["Time"]).mean())
     print(df_p[["Model1", "Model2", "Overlap"]].groupby(["Model1", "Model2"]).mean())
@@ -92,8 +94,6 @@ def main():
             _, feature_df, feature_names_i = get_feature_data(data_type, time, "game", ["all"])
             feature_names_i = sorted(feature_names_i)
             feature_df = feature_df[feature_names_i + ["game"]]
-            for feature_name in feature_names_i:
-                feature_df[feature_name] = zscore(feature_df[feature_name])
             feature_df["Model"] = data_type
             feature_df["Time"] = time
             df = pd.concat([df, feature_df])

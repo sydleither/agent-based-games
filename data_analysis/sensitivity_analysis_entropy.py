@@ -1,12 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import zscore
 import seaborn as sns
 
 from spatial_egt.classification.common import get_feature_data
 from spatial_egt.classification.DDIT.ddit import DDIT
-from spatial_egt.common import game_colors
 
 
 def lineplot(save_loc, df):
@@ -49,8 +47,6 @@ def main():
         for time in [100, 200, 300]:
             _, feature_df, feature_names_i = get_feature_data(data_type, time, "game", ["noncorr"])
             feature_df = feature_df[feature_names_i + ["game"]]
-            for feature_name in feature_names_i:
-                feature_df[feature_name] = zscore(feature_df[feature_name])
             top = get_entropy(feature_df, feature_names_i, "game")
             top = top | {"Spatial Scale": data_type, "Time": time}
             data.append(top)

@@ -41,7 +41,10 @@ def main(data_type, time):
                         print(f"Data not found in {model_path}")
                         continue
                     df = pd.read_csv(model_path)
-                    df = df[df["time"] == time]
+                    if time == "max":
+                        df = df[df["time"] == df["time"].max()]
+                    else:
+                        df = df[df["time"] == time]
                     df["type"] = df["type"].map(cell_type_map)
                     cols_to_keep = ["type", "x", "y"]
                     df = df[cols_to_keep]
@@ -49,7 +52,9 @@ def main(data_type, time):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 2:
+        main(sys.argv[1], "max")
+    elif len(sys.argv) == 3:
         main(sys.argv[1], int(sys.argv[2]))
     else:
         print("Please see the module docstring for usage instructions.")

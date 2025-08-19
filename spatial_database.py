@@ -181,4 +181,5 @@ STATISTIC_PARAMS = {
 }
 STATISTIC_PARAMS["in_silico2"] = STATISTIC_PARAMS["in_silico"]
 STATISTIC_PARAMS["in_silico3"] = STATISTIC_PARAMS["in_silico"]
+STATISTIC_PARAMS["in_silico_ps"] = STATISTIC_PARAMS["in_silico"]
 STATISTIC_PARAMS["in_vitro_h358"] = STATISTIC_PARAMS["in_vitro_pc9"]

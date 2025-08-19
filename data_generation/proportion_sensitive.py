@@ -35,7 +35,7 @@ def get_fr(payoff):
             return random.uniform(0.1, 0.4)
 
 
-def main(data_dir, experiment_name, num_samples, seed, run_command, interaction_radius=2, reproduction_radius=1, end_time=300):
+def main(data_dir, experiment_name, num_samples, seed, run_command, interaction_radius=2, reproduction_radius=1, end_time=100):
     """Generate scripts to run the ABM"""
     space = "2D"
 
@@ -69,7 +69,7 @@ def main(data_dir, experiment_name, num_samples, seed, run_command, interaction_
             interaction_radius=interaction_radius,
             reproduction_radius=reproduction_radius,
             turnover=0.009,
-            write_freq=50,
+            write_freq=10,
             ticks=end_time,
         )
         run_output.append(f"{run_str} {config_name} {space} {seed}\n")

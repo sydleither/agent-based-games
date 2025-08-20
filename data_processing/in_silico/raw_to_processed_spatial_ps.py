@@ -9,6 +9,7 @@ data_type: the name of the directory in data/ containing the raw/ data
 
 import sys
 import os
+import random
 
 import pandas as pd
 
@@ -31,19 +32,24 @@ def get_proportion(counts):
     return r_cells / (r_cells + s_cells)
 
 
-def read_coords(coords):
+def get_time_in_range(coords):
     """Get the proportion resistant at each time step"""
     # Get the count of each cell type at each time step
     coords = coords[["time", "type", "x"]]
     counts = coords.groupby(["time", "type"]).count().reset_index()
     # Calculate proportion resistant at each time step
-    proportion_r = counts.groupby(["time"])[["type", "x"]]
-    proportion_r = proportion_r.apply(get_proportion).reset_index()
-    return proportion_r
+    fr = counts.groupby(["time"])[["type", "x"]]
+    fr = fr.apply(get_proportion).reset_index()
+    fr = fr[(fr[0] > 0.45) & (fr[0] < 0.55)]
+    if len(fr) == 0:
+        return None
+    time = random.sample(fr["time"].tolist(), 1)[0]
+    return time
 
 
 def main(data_type):
     """Save each raw coordinate file as a processed file"""
+    random.seed(42)
     raw_data_path = get_data_path(data_type, "raw")
     processed_data_path = get_data_path(data_type, "processed", 50)
     cell_type_map = {0: "sensitive", 1: "resistant"}
@@ -67,9 +73,10 @@ def main(data_type):
                         print(f"Data not found in {model_path}")
                         continue
                     df = pd.read_csv(model_path)
-                    fr = read_coords(df)
-                    print(fr)
-                    exit()
+                    time = get_time_in_range(df)
+                    if time is None:
+                        continue
+                    df = df[df["time"] == time]
                     df["type"] = df["type"].map(cell_type_map)
                     cols_to_keep = ["type", "x", "y"]
                     df = df[cols_to_keep]

@@ -25,9 +25,15 @@ from spatial_egt.common import calculate_game
 def get_fr(payoff):
     game = calculate_game(*payoff)
     if game == "Sensitive Wins":
-        return random.uniform(0.6, 0.9)
+        if random.random() < 0.5:
+            return random.uniform(0.6, 0.9)
+        else:
+            return None
     elif game == "Resistant Wins":
-        return random.uniform(0.1, 0.4)
+        if random.random() < 0.5:
+            return random.uniform(0.1, 0.4)
+        else:
+            return None
     else:
         if random.random() < 0.5:
             return random.uniform(0.6, 0.9)
@@ -35,12 +41,12 @@ def get_fr(payoff):
             return random.uniform(0.1, 0.4)
 
 
-def main(data_dir, experiment_name, num_samples, seed, run_command, interaction_radius=2, reproduction_radius=1, end_time=200):
+def main(data_dir, experiment_name, num_samples, seed, run_command, interaction_radius=2, reproduction_radius=1, end_time=500):
     """Generate scripts to run the ABM"""
     space = "2D"
 
     samples = latin_hybercube_sample(
-        num_samples,
+        2*num_samples,
         ["A", "B", "C", "D", "cells"],
         [0, 0, 0, 0, 50],
         [0.1, 0.1, 0.1, 0.1, 9500],
@@ -56,6 +62,8 @@ def main(data_dir, experiment_name, num_samples, seed, run_command, interaction_
         seed = config_name
         payoff = [sample["A"], sample["B"], sample["C"], sample["D"]]
         fr = get_fr(payoff)
+        if fr is None:
+            continue
         write_config(
             data_dir,
             experiment_name,

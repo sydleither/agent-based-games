@@ -1,5 +1,6 @@
 """Compile Dag's experimental data into a csv with payoff matrix data"""
 
+import argparse
 import os
 
 import pandas as pd
@@ -58,10 +59,15 @@ def format_raw_df(df, source, sensitive_type, time_to_keep):
 
 def main():
     """Process count data for each experiment"""
-    data_dir = "in_vitro_pc9"
-    raw_data_path = get_data_path(data_dir, "raw")
-    growth_rate_window = [24, 72]
-    time_to_keep = 72
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-dir", "--data_dir", type=str, default="in_vitro_pc9")
+    parser.add_argument("-start", "--growth_rate_start", type=int, default=24)
+    parser.add_argument("-end", "--growth_rate_end", type=int, default=72)
+    parser.add_argument("-time", "--time_to_keep", type=int, default=72)
+    args = parser.parse_args()
+
+    raw_data_path = get_data_path(args.data_dir, "raw")
+    growth_rate_window = [args.growth_rate_start, args.growth_rate_end]
 
     df = pd.DataFrame()
     for experiment_name in os.listdir(raw_data_path):
@@ -79,9 +85,9 @@ def main():
         df_exp = payoff_df.merge(counts_df, on="DrugConcentration")
         df_exp["time_id"] = df_exp["Time"].rank(method="dense", ascending=True)
         df_exp["time_id"] = df_exp["time_id"].astype(int)
-        df_exp = format_raw_df(df_exp, experiment_name, cell_types[0], time_to_keep)
+        df_exp = format_raw_df(df_exp, experiment_name, cell_types[0], args.time_to_keep)
         df = pd.concat([df, df_exp])
-    data_path = get_data_path(data_dir, ".")
+    data_path = get_data_path(args.data_dir, ".")
     df.to_csv(f"{data_path}/labels.csv", index=False)
 
 

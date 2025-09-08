@@ -24,6 +24,8 @@ from spatial_egt.common import calculate_game
 
 def get_fr(payoff):
     game = calculate_game(*payoff)
+    if game == "Unknown":
+        return None
     if game == "Sensitive Wins":
         if random.random() < 0.5:
             return random.uniform(0.6, 0.9)

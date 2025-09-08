@@ -1,4 +1,6 @@
-import sys
+"""Plot payoff values of experimental data"""
+
+import argparse
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -29,18 +31,23 @@ def get_samples(data_type, source):
     data_path = get_data_path(data_type, ".")
     df_labels = pd.read_csv(f"{data_path}/labels.csv")
     df_labels["sample"] = df_labels["sample"].astype(str)
-    if source != "":
+    if source is not None:
         df_labels = df_labels[df_labels["source"] == source]
     return df_labels
 
 
-def main(data_type, source=""):
-    save_name = ""
-    if source != "":
-        save_name += "_" + source
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-dir", "--data_type", type=str, default="in_vitro_pc9")
+    parser.add_argument("-source", "--source", type=str, default=None)
+    args = parser.parse_args()
 
-    image_data_path = get_data_path(data_type, "images")
-    df = get_samples(data_type, source)
+    save_name = ""
+    if args.source is not None:
+        save_name += "_" + args.source
+
+    image_data_path = get_data_path(args.data_type, "images")
+    df = get_samples(args.data_type, args.source)
     df = pd.melt(
         df,
         id_vars=["source", "sample"],
@@ -55,7 +62,4 @@ def main(data_type, source=""):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) in (2, 3):
-        main(*sys.argv[1:])
-    else:
-        print("Please provide the data type and (optionally) source")
+    main()

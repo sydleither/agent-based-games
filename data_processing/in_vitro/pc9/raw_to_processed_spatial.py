@@ -1,11 +1,9 @@
 """Compile Dag's experimental spatial data into formatted csvs
 
 The payoff matrix data (labels.csv) should already be saved
-
-Expected usage:
-python3 -m data_processing.in_vitro.pc9.raw_to_processed_spatial
 """
 
+import argparse
 import csv
 
 import pandas as pd
@@ -42,10 +40,14 @@ def get_spatial_data(data_path, source, plate, well, time):
 
 def main():
     """Get coordinates of each sample in labels.csv"""
-    data_dir = "in_vitro_pc9"
-    raw_data_path = get_data_path(data_dir, "raw")
-    payoff_data_path = get_data_path(data_dir, ".")
-    processed_data_path = get_data_path(data_dir, "processed")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-dir", "--data_dir", type=str, default="in_vitro_pc9")
+    parser.add_argument("-time", "--time_to_keep", type=int, default=72)
+    args = parser.parse_args()
+
+    raw_data_path = get_data_path(args.data_dir, "raw")
+    payoff_data_path = get_data_path(args.data_dir, ".")
+    processed_data_path = get_data_path(args.data_dir, "processed", args.time_to_keep)
 
     with open(f"{payoff_data_path}/labels.csv", encoding="UTF-8") as payoff_csv:
         reader = csv.DictReader(payoff_csv)

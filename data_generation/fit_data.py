@@ -60,14 +60,14 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
                     write_freq=end_time // 10,
                     ticks=end_time,
                 )
-                run_output.append(f"{run_str} {config_name} {space} {seed}\n")
+                run_output.append(f"{run_str} {config_name} {space} {rep_seed}\n")
     return run_output
 
 
 def main():
     """Generate scripts to run the ABM"""
     parser = argparse.ArgumentParser()
-    parser.add_argument("-abm_dir", "--abm_data_type", type=str, default="in_silico")
+    parser.add_argument("-abm_dir", "--abm_data_type", type=str, default="in_silico_fit")
     parser.add_argument("-exp_dir", "--exp_data_type", type=str, default="in_vitro_pc9")
     parser.add_argument("-run_cmd", "--run_command", type=str, default="sbatch job_abm.sb")
     parser.add_argument("-seed", "--seed", type=int, default=42)

@@ -23,6 +23,7 @@ def get_stat(row, raw_data_path, time, stat_name, stat_calculation, stat_args):
         coords = coords[coords["time"] == time]
         coords["x"] = coords["x"] * int(row["expansion"])
         coords["y"] = coords["y"] * int(row["expansion"])
+        coords = coords.reset_index()
         statistic = stat_calculation(coords, **stat_args)
         if isinstance(statistic, list) or isinstance(statistic, np.ndarray):
             if stat_calculation.__name__.endswith("dist"):
@@ -41,13 +42,17 @@ def read_abm_data(data_type, stat_name, time, source, sample_id):
     data_path = get_data_path(data_type, ".")
     df = pd.read_csv(f"{data_path}/labels.csv")
     df["sample_id"] = df["sample"].str.split("-").str[0]
+    df["params"] = df["sample"].str.split("-").str[1]
     if source is not None:
         df = df[(df["source"] == source)]
     if sample_id is not None:
         df = df[(df["sample_id"] == sample_id)]
-    df["expansion"] = df["sample"].str.split("-").str[1]
-    df["interaction"] = df["sample"].str.split("-").str[2]
-    df["reproduction"] = df["sample"].str.split("-").str[3]
+    df["expansion"] = df["params"].str.split("_").str[0]
+    df["interaction"] = df["params"].str.split("_").str[1]
+    df["reproduction"] = df["params"].str.split("_").str[2]
+
+    #TODO temp
+    df = df[df["expansion"] == '3']
 
     # Get statistic parameters
     stat_calculation = STATISTIC_REGISTRY[stat_name]
@@ -79,8 +84,9 @@ def main():
     parser.add_argument("-sam", "--sample", type=str, default=None)
     args = parser.parse_args()
 
-    abm_cpcf_file = f"{get_data_path(args.abm_data_type, '.')}/{args.statistic_name}.pkl"
-    if not os.path.isfile(abm_cpcf_file):
+    data_path = get_data_path(args.abm_data_type, ".")
+    abm_file = f"{data_path}/{args.statistic_name}-{args.source}-{args.sample}.pkl"
+    if not os.path.isfile(abm_file):
         df_abm = read_abm_data(
             args.abm_data_type,
             args.statistic_name,
@@ -88,14 +94,14 @@ def main():
             args.source,
             args.sample,
         )
-        df_abm.to_pickle(abm_cpcf_file)
+        df_abm.to_pickle(abm_file)
     else:
-        df_abm = pd.read_csv(abm_cpcf_file)
+        df_abm = pd.read_pickle(abm_file)
 
     df_exp = pd.read_pickle(
         f"data/{args.exp_data_type}/{args.time}/statistics/{args.statistic_name}.pkl"
     )
-    df_exp[args.statistic_name] = np.min(df_exp[args.statistic_name])
+    df_exp[args.statistic_name] = df_exp[args.statistic_name].apply(lambda x: min(x))
 
     df_abm[f"ABM {args.statistic_name}"] = df_abm[args.statistic_name]
     df_exp[f"Exp {args.statistic_name}"] = df_exp[args.statistic_name]

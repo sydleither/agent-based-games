@@ -57,7 +57,7 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
                     interaction_radius=round(avg_grid_length * (inter_radius / 100)),
                     reproduction_radius=round(avg_grid_length * (repro_radius / 100)),
                     turnover=0.0,
-                    write_freq=end_time // 10,
+                    write_freq=end_time,
                     ticks=end_time,
                 )
                 run_output.append(f"{run_str} {config_name} {space} {rep_seed}\n")
@@ -71,7 +71,7 @@ def main():
     parser.add_argument("-exp_dir", "--exp_data_type", type=str, default="in_vitro_pc9")
     parser.add_argument("-run_cmd", "--run_command", type=str, default="sbatch job_abm.sb")
     parser.add_argument("-seed", "--seed", type=int, default=42)
-    parser.add_argument("-end", "--end_time", type=int, default=120)
+    parser.add_argument("-end", "--end_time", type=int, default=72)
     args = parser.parse_args()
 
     abm_data_dir = get_data_path(args.abm_data_type, "raw")

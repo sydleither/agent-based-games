@@ -46,8 +46,7 @@ def main(data_type, time):
                     else:
                         df = df[df["time"] == time]
                     df["type"] = df["type"].map(cell_type_map)
-                    cols_to_keep = ["type", "x", "y"]
-                    df = df[cols_to_keep]
+                    df = df[["type", "x", "y"]]
                     df.to_csv(f"{processed_data_path}/{exp_name} {data_dir}.csv", index=False)
 
 

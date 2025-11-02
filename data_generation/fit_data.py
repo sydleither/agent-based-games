@@ -36,9 +36,9 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
     experiment_name = row["source"]
     run_str = f"{run_command} ../{data_dir} {experiment_name}"
     payoff = [row["a"], row["b"], row["c"], row["d"]]
-    for grid_expansion in range(1, 4):
-        for inter_radius in range(4, 12, 2):
-            for repro_radius in range(4, inter_radius + 2, 2):
+    for grid_expansion in range(3, 6):
+        for inter_radius in range(6, 18, 3):
+            for repro_radius in range(6, inter_radius + 3, 3):
                 config_name = f"{row['sample']}-{grid_expansion}_{inter_radius}_{repro_radius}"
                 rep_seed = random.randint(0, 10000)
                 abm_grid_x = grid_x // grid_expansion

@@ -51,9 +51,6 @@ def read_abm_data(data_type, stat_name, time, source, sample_id):
     df["interaction"] = df["params"].str.split("_").str[1]
     df["reproduction"] = df["params"].str.split("_").str[2]
 
-    #TODO temp
-    df = df[df["expansion"] == '3']
-
     # Get statistic parameters
     stat_calculation = STATISTIC_REGISTRY[stat_name]
     stat_args = get_statistic_calculation_arguments(data_type, stat_name)
@@ -107,10 +104,9 @@ def main():
     df_exp[f"Exp {args.statistic_name}"] = df_exp[args.statistic_name]
     df = df_abm.merge(df_exp, on=["source", "sample"])
     df["distance"] = df[f"Exp {args.statistic_name}"] - df[f"ABM {args.statistic_name}"]
-    print(df)
 
-    print(df[["sample", "distance"]].groupby("sample").mean().sort_values())
-    print(df[["source", "distance"]].groupby("source").mean().sort_values())
+    print(df[["params", "distance"]].groupby("params").mean().sort_values(by="distance"))
+    print(df[["params", "source", "distance"]].groupby(["params", "source"]).mean().sort_values(by="distance"))
 
 
 if __name__ == "__main__":

@@ -59,6 +59,7 @@ def write_matching_configs(row, data_dir, run_command, space, end_time, grid_x, 
                     turnover=0.0,
                     write_freq=end_time,
                     ticks=end_time,
+                    grid_expansion=grid_expansion
                 )
                 run_output.append(f"{run_str} {config_name} {space} {rep_seed}\n")
     return run_output
